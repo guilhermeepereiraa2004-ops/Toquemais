@@ -2,23 +2,24 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
-import connectDB from './src/config/database.js';
-import { initFirebase, uploadFileToFirebase, deleteFileFromFirebase } from './src/services/firebaseStorage.js';
+import connectDB from '../src/config/database.js';
+import { initFirebase, uploadFileToFirebase, deleteFileFromFirebase } from '../src/services/firebaseStorage.js';
 
 // Models
-import Student from './src/models/Student.js';
-import Content from './src/models/Content.js';
-import Report from './src/models/Report.js';
+import Student from '../src/models/Student.js';
+import Content from '../src/models/Content.js';
+import Report from '../src/models/Report.js';
 
 dotenv.config();
 
 // Inicializações
 const app = express();
+// Vercel Serverless não usa porta fixa, mas para dev local:
 const PORT = process.env.PORT || 3001;
 
-// Conexões
+// Conexões (Executa a cada requisição fria no serverless)
 connectDB();
-initFirebase(); // Tenta iniciar o Firebase se houver credenciais
+initFirebase();
 
 // Middlewares
 app.use(cors());
@@ -35,7 +36,6 @@ const upload = multer({
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'online',
-        mongo: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
         env_bucket: !!process.env.FIREBASE_BUCKET_URL
     });
 });
@@ -53,7 +53,7 @@ app.get('/api/data', async (req, res) => {
             students,
             contents,
             reports,
-            activities: [], // Atividades ainda via localStorage no frontend ou implementar Model futuro
+            activities: [],
             activity_results: []
         });
     } catch (error) {
@@ -78,8 +78,6 @@ app.post('/api/students', async (req, res) => {
 
 app.put('/api/students/:id', async (req, res) => {
     try {
-        // Frontend envia ID numérico ou string. O Model usa _id (ObjectId) ou id (String).
-        // Vamos tentar buscar pelo campo id customizado ou _id
         const { id } = req.params;
         const updated = await Student.findOneAndUpdate({ $or: [{ id: id }, { _id: id }] }, req.body, { new: true });
         res.json(updated);
@@ -101,21 +99,19 @@ app.delete('/api/students/:id', async (req, res) => {
 // --- ROTAS CONTEÚDO (UPLOAD) ---
 app.post('/api/content', upload.single('file'), async (req, res) => {
     try {
-        // Se for JSON (apenas link, sem arquivo)
         if (!req.file) {
             const newContent = await Content.create({
                 ...req.body,
-                recipients: req.body.recipients // Array de IDs
+                recipients: req.body.recipients
             });
             return res.json({ success: true, content: newContent });
         }
 
-        // Se tiver arquivo, tenta Firebase
         try {
             const fileData = await uploadFileToFirebase(req.file);
             const newContent = await Content.create({
                 ...req.body,
-                recipients: req.body.recipients, // Mongoose cuida se vier array ou string
+                recipients: req.body.recipients,
                 fileUrl: fileData.url,
                 fileName: fileData.fileName,
                 fileType: req.file.mimetype,
@@ -139,7 +135,6 @@ app.delete('/api/content/:id', async (req, res) => {
         const content = await Content.findOne({ $or: [{ id: id }, { _id: id }] });
 
         if (content) {
-            // Tenta deletar do Firebase se tiver URL
             if (content.fileUrl && content.fileUrl.includes('storage.googleapis.com')) {
                 await deleteFileFromFirebase(content.fileName || content.fileUrl).catch(err => console.error("Erro delete FB:", err));
             }
@@ -161,12 +156,11 @@ app.post('/api/reports', async (req, res) => {
     }
 });
 
-// Só inicializa o servidor se não for importado (Vercel importa, Local executa)
+// Listener local para dev (Vercel ignora isso ao usar import)
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 Servidor rodando localmente na porta ${PORT}`);
     });
 }
 
-// Exporta para o Vercel Serverless
 export default app;
