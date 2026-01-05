@@ -799,6 +799,52 @@
             closeModal('modalCreateActivity');
         }
 
+        // --- GERENCIAMENTO DE ESTUDANTES (EDITAR) ---
+        function openManageStudent(id) {
+            const student = students.find(s => (s._id || s.id) === id);
+            if (!student) return alert('Aluno não encontrado.');
+
+            document.getElementById('editStudentId').value = student._id || student.id;
+            document.getElementById('editStudentName').value = student.name;
+            document.getElementById('editStudentEmail').value = student.email;
+            document.getElementById('editStudentPass').value = student.password; // Aviso: Em prod, não retornar senha
+            document.getElementById('editStudentLevel').value = student.level;
+            document.getElementById('editStudentPayment').value = student.payment || ''; // Preencher pagamento
+
+            openModal('modalEditStudent');
+        }
+
+        async function handleEditStudent(e) {
+            e.preventDefault();
+            const id = document.getElementById('editStudentId').value;
+            const payload = {
+                email: document.getElementById('editStudentEmail').value,
+                password: document.getElementById('editStudentPass').value,
+                level: document.getElementById('editStudentLevel').value,
+                payment: document.getElementById('editStudentPayment').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/students/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Dados atualizados com sucesso!');
+                    closeModal('modalEditStudent');
+                    loadData();
+                } else {
+                    const err = await res.json();
+                    alert('Erro ao atualizar: ' + (err.error || 'Desconhecido'));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro de conexão ao atualizar.');
+            }
+        }
+
         function deleteActivity(id) {
             if (confirm('Remover esta atividade permanente?')) {
                 activities = activities.filter(a => a.id !== id);
