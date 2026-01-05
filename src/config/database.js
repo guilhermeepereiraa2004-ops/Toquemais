@@ -9,7 +9,8 @@ const connectDB = async () => {
         console.log('📦 MongoDB Conectado!');
     } catch (error) {
         console.error('❌ Erro na conexão MongoDB:', error.message);
-        process.exit(1);
+        // Não derrubar o processo no serverless para não retornar 502/500 genérico.
+        // process.exit(1); 
     }
 };
 

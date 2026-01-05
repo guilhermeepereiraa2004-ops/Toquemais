@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import mongoose from 'mongoose';
 import connectDB from '../src/config/database.js';
 import { initFirebase, uploadFileToFirebase, deleteFileFromFirebase } from '../src/services/firebaseStorage.js';
 
@@ -41,7 +42,21 @@ app.get('/api/health', (req, res) => {
 });
 
 // --- ROTA PRINCIPAL: DADOS AGREGADOS ---
+// --- ROTA PRINCIPAL: DADOS AGREGADOS ---
 app.get('/api/data', async (req, res) => {
+    // Fail-safe: Se não tiver conectado ao banco ainda
+    if (mongoose.connection.readyState !== 1) {
+        await connectDB(); // Tenta conectar de novo
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                error: 'Banco de dados não conectado. Verifique MONGODB_URI.',
+                students: [], // Retorna array vazio para não quebrar o frontend
+                contents: [],
+                reports: []
+            });
+        }
+    }
+
     try {
         const [students, contents, reports] = await Promise.all([
             Student.find().sort({ name: 1 }),
@@ -58,7 +73,7 @@ app.get('/api/data', async (req, res) => {
         });
     } catch (error) {
         console.error("Erro ao buscar dados:", error);
-        res.status(500).json({ error: 'Erro ao buscar dados do servidor.' });
+        res.status(500).json({ error: 'Erro ao buscar dados do servidor: ' + error.message });
     }
 });
 
