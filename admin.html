@@ -799,30 +799,23 @@
             closeModal('modalCreateActivity');
         }
 
-        // Tornar funções acessíveis globalmente
-        window.openManageStudent = openManageStudent;
-        window.handleEditStudent = handleEditStudent;
-        window.deleteStudent = deleteStudent;
-        window.deleteContent = deleteContent;
-        window.deleteActivity = deleteActivity;
-        window.deleteResult = deleteResult;
-        window.deleteReport = deleteReport;
-        window.addStudent = addStudent;
-        window.handleUpload = handleUpload;
-        window.createActivity = createActivity;
-        window.addReport = addReport;
-        window.switchTab = switchTab;
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-        window.toggleLinkPlaceholder = toggleLinkPlaceholder;
-        window.addQuestionField = addQuestionField;
 
         // --- GERENCIAMENTO DE ESTUDANTES (EDITAR) ---
         function openManageStudent(id) {
-            console.log("Abrindo edição para ID:", id);
-            const student = students.find(s => (s._id || s.id) === id);
+            console.log("Tentando abrir modal para ID:", id);
+
+            // Garantir que students esteja carregado
+            if (!students || students.length === 0) {
+                console.warn("Lista de alunos vazia ou não carregada.");
+                alert("Aguarde, carregando dados...");
+                return;
+            }
+
+            const student = students.find(s => String(s._id) === String(id) || String(s.id) === String(id));
+
             if (!student) {
-                console.error("Aluno não encontrado na lista:", students);
+                console.error("Aluno não encontrado. ID buscado:", id);
+                console.log("IDs disponíveis:", students.map(s => s._id || s.id));
                 return alert('Aluno não encontrado.');
             }
 
