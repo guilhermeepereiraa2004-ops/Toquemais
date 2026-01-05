@@ -862,203 +862,95 @@
             }
         }
 
-        function deleteActivity(id) {
-            if (confirm('Remover esta atividade permanente?')) {
-                activities = activities.filter(a => a.id !== id);
-                saveData(); renderActivities();
-            }
+        async function deleteActivity(id) {
+            if (!confirm('Remover esta atividade?')) return;
+            try {
+                await fetch(`${API_URL}/activities/${id}`, { method: 'DELETE' });
+                loadData();
+            } catch (err) { console.error(err); }
         }
 
-        async function compressFile(file) {
-            // Se for imagem, comprime via Canvas
-            if (file.type.startsWith('image/')) {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = (event) => {
-                        const img = new Image();
-                        img.src = event.target.result;
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            let width = img.width;
-                            let height = img.height;
-                            const maxDimension = 1200;
-                            if (width > height) {
-                                if (width > maxDimension) { height *= maxDimension / width; width = maxDimension; }
-                            } else {
-                                if (height > maxDimension) { width *= maxDimension / height; height = maxDimension; }
-                            }
-                            canvas.width = width;
-                            canvas.height = height;
-                            ctx.drawImage(img, 0, 0, width, height);
-                            const compressedData = canvas.toDataURL('image/jpeg', 0.7);
-                            resolve({ data: compressedData, name: file.name.split('.')[0] + '_comp.jpg', type: 'image/jpeg' });
-                        };
-                    };
-                });
-            }
-            // Para outros arquivos (Video/PDF), simula processo de compressão e retorna DataURL
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve({ data: e.target.result, name: file.name, type: file.type });
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function handleUpload(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerText;
-
-            const selectedIds = Array.from(document.querySelectorAll('#uploadStudentList input:checked')).map(cb => parseInt(cb.value));
-            if (!selectedIds.length) return alert('Selecione os destinatários.');
-
-            const recipientNames = selectedIds.map(id => students.find(s => s.id === id).name);
-            const fileInput = document.getElementById('uploadFile');
-            const file = fileInput.files[0];
-
-            btn.innerText = "Processando Arquivo...";
-            btn.disabled = true;
-
-            const contentId = Date.now();
-            let hasFile = false;
-
-            if (file) {
-                try {
-                    await saveFileToDB(contentId, file);
-                    hasFile = true;
-                } catch (err) {
-                    alert('Erro ao guardar arquivo no navegador. Tente liberar espaço em disco.');
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    return;
-                }
-            }
-
-            contents.unshift({
-                id: contentId,
-                title: document.getElementById('uploadTitle').value,
-                desc: document.getElementById('uploadDesc').value,
-                recipients: recipientNames,
-                date: new Date().toLocaleDateString('pt-BR'),
-                hasFile: hasFile,
-                fileName: file ? file.name : null,
-                fileType: file ? file.type : null
-            });
-
-            saveData();
-            closeModal('modalUpload');
-            alert(file ? 'Vídeo/Material liberado com sucesso!' : 'Instruções enviadas!');
-
-            if (document.getElementById('tab-content').classList.contains('active')) renderContents();
-            btn.innerText = originalText;
-            btn.disabled = false;
-            e.target.reset();
-        }
-
-        async function deleteContent(id) {
-            if (confirm('Remover permanentemente do sistema?')) {
-                try {
-                    const response = await fetch(`${API_URL}/api/content/${id}`, { method: 'DELETE' });
-                    if (response.ok) {
-                        contents = contents.filter(c => c.id !== id);
-                        renderContents();
-                        updateStats();
-                    }
-                } catch (err) { alert('Erro ao deletar arquivo físico.'); }
-            }
-        }
-
-        function addReport(e) {
+        async function addReport(e) {
             e.preventDefault();
             const feedback = document.getElementById('reportFeedback').value;
-            const ids = Array.from(document.querySelectorAll('#reportStudentList input:checked')).map(cb => parseInt(cb.value));
+            // Checkbox values are now correct IDs (String) from previous fix
+            const ids = Array.from(document.querySelectorAll('#reportStudentList input:checked')).map(cb => cb.value);
+
             if (ids.length === 0) return alert('Selecione pelo menos um aluno.');
 
-            ids.forEach(id => {
-                const s = students.find(st => st.id === id);
-                reports.unshift({
-                    id: Date.now() + Math.random(),
-                    student: s.name,
-                    date: new Date().toLocaleDateString('pt-BR'),
-                    feedback: feedback
-                });
-            });
-            saveData();
-            renderReports();
-            e.target.reset();
-            closeModal('modalAddReport');
-            alert('Feedback publicado no sistema!');
+            try {
+                // Enviar um report para cada aluno (poderia ser bulk, mas vamos 1 por 1 por enquanto)
+                for (const id of ids) {
+                    await fetch(`${API_URL}/reports`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ studentId: id, feedback, date: new Date().toLocaleDateString('pt-BR') })
+                    });
+                }
+                alert('Feedbacks enviados!');
+                closeModal('modalAddReport');
+                loadData();
+                e.target.reset();
+            } catch (err) { alert('Erro ao enviar feedback.'); }
         }
 
-        function openManageStudent(id) {
-            const s = students.find(s => s.id === id);
-            if (!s) return;
-
-            document.getElementById('editStudentId').value = s.id;
-            document.getElementById('editStudentName').value = s.name;
-            document.getElementById('editStudentEmail').value = s.email;
-            document.getElementById('editStudentPass').value = s.password || '';
-            document.getElementById('editStudentLevel').value = s.level;
-            document.getElementById('editStudentPayment').value = s.payment;
-
-            openModal('modalEditStudent');
+        async function deleteReport(id) {
+            if (!confirm('Apagar histórico?')) return;
+            try {
+                await fetch(`${API_URL}/reports/${id}`, { method: 'DELETE' });
+                loadData();
+            } catch (err) { console.error(err); }
         }
 
-        function handleEditStudent(e) {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('editStudentId').value);
-            const idx = students.findIndex(s => s.id === id);
-            if (idx === -1) return;
-
-            students[idx] = {
-                ...students[idx],
-                email: document.getElementById('editStudentEmail').value,
-                password: document.getElementById('editStudentPass').value,
-                level: document.getElementById('editStudentLevel').value,
-                payment: document.getElementById('editStudentPayment').value
-            };
-
-            saveData();
-            renderStudents();
-            closeModal('modalEditStudent');
-            alert('Informações atualizadas com sucesso!');
+        async function deleteResult(id) {
+            if (!confirm('Apagar resultado?')) return;
+            try {
+                await fetch(`${API_URL}/activity_results/${id}`, { method: 'DELETE' });
+                loadData();
+            } catch (err) { console.error(err); }
         }
 
-        function deleteStudent(id) {
-            if (confirm('Tem certeza que deseja apagar este aluno? Isso removerá o acesso dele permanentemente.')) {
-                students = students.filter(s => s.id !== id);
-                saveData(); renderStudents(); renderFinance();
+        // --- GLOBAL EVENT DELEGATION ---
+        document.addEventListener('click', function (e) {
+            // EDITAR ALUNO
+            const editBtn = e.target.closest('.edit-btn');
+            if (editBtn) {
+                const id = editBtn.getAttribute('data-id');
+                if (id) openManageStudent(id);
+                return;
             }
-        }
 
-        function deleteContent(id) {
-            if (confirm('Deseja apagar este material de estudo?')) {
-                contents = contents.filter(c => c.id !== id);
-                deleteFileFromDB(id);
-                saveData(); renderContents();
+            // EXCLUIR ALUNO
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                const id = deleteBtn.getAttribute('data-id');
+                if (id) deleteStudent(id);
+                return;
             }
-        }
+        });
 
-        function deleteReport(id) {
-            if (confirm('Deseja apagar este relatório de histórico?')) {
-                reports = reports.filter(r => r.id !== id);
-                saveData(); renderReports();
-            }
-        }
+        // --- EXPOSE GLOBAL FUNCTIONS ---
+        window.openManageStudent = openManageStudent;
+        window.handleEditStudent = handleEditStudent;
+        window.deleteStudent = deleteStudent;
+        window.deleteContent = deleteContent;
+        window.deleteActivity = deleteActivity;
+        window.deleteReport = deleteReport;
+        window.deleteResult = deleteResult;
 
-        function deleteResult(id) {
-            if (confirm('Deseja apagar este resultado de atividade?')) {
-                activity_results = activity_results.filter(r => r.id !== id);
-                saveData(); renderActivities();
-            }
-        }
+        window.addStudent = addStudent;
+        window.handleUpload = handleUpload;
+        window.createActivity = createActivity;
+        window.addReport = addReport;
 
-        // Init
-        renderStudents();
-        updateStats();
-    </script>
-</body>
+        window.switchTab = switchTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.toggleLinkPlaceholder = toggleLinkPlaceholder;
+        window.addQuestionField = addQuestionField;
 
-</html>
+        // INICIAR
+        document.addEventListener('DOMContentLoaded', loadData);
+
+
+</html >
