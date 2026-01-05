@@ -468,10 +468,13 @@
                 const students = data.students || [];
                 const contents = data.contents || [];
                 const reports = data.reports || [];
-                const activities = []; // Placeholder
+                const activities = data.activities || []; // Agora pega da API
 
                 const email = localStorage.getItem('lastLoginEmail');
                 if (!email) { window.location.href = 'index.html'; return; }
+
+                // Disponibiliza activities globalmente para o quiz funcionar
+                window.globalActivities = activities;
 
                 renderProfile(email, students, reports, contents, activities, []);
             } catch (e) { console.error(e); }
@@ -482,7 +485,6 @@
         function renderProfile(email, students, reports, contents, activities, activity_results) {
 
             const student = students.find(s => s.email === email);
-            // Se não achar aluno por email, volta pro login
             if (!student) { window.location.href = 'index.html'; return; }
 
             document.getElementById('studentNameDisplay').innerText = student.name;
@@ -491,10 +493,8 @@
             const levelMap = { 'beginner': 'Iniciante', 'intermediate': 'Intermediário', 'advanced': 'Avançado', 'master': 'Master' };
             document.getElementById('studentLevelDisplay').innerText = levelMap[student.level] || student.level;
 
-            // ... (Lógica de pagamento mantida visualmente, mas precisa de dados reais se quiser) ...
             document.getElementById('paymentDateBig').innerText = `Todo dia ${student.payment || '?'}`;
 
-            // Lógica de Status do Pagamento
             const today = new Date().getDate();
             const payDay = parseInt(student.payment) || 10;
             const statusTag = document.getElementById('paymentStatusTag');
@@ -504,17 +504,14 @@
                 statusTag.style.color = "var(--primary-purple-light)";
             } else {
                 statusTag.innerText = "EM ABERTO";
-                statusTag.style.color = "#fbbf24"; // Amarelo
+                statusTag.style.color = "#fbbf24";
             }
 
-            // Listar vídeos: Filtrar pelo ID do aluno (string) que está no array recipients
+            // --- CONTEÚDOS (AULAS) ---
             const myContents = contents.filter(c => c.recipients.includes(String(student.id)) || c.recipients.includes(String(student._id)));
-
             document.getElementById('videoCount').innerText = `${myContents.length} aulas disponíveis`;
-
-            const grid = document.getElementById('studentVideoGrid');
-            grid.innerHTML = myContents.length ? myContents.map(c => {
-                // Tentar extrair ID do youtube para thumbnail, ou usar icon
+            const vidGrid = document.getElementById('studentVideoGrid');
+            vidGrid.innerHTML = myContents.length ? myContents.map(c => {
                 let thumb = '🎬';
                 let isYoutube = c.link && (c.link.includes('youtube') || c.link.includes('youtu.be'));
                 if (isYoutube) {
@@ -529,43 +526,51 @@
                         <div class="thumb-wrapper" onclick="viewContent('${c.link}', '${c.type}')" style="cursor:pointer;">${thumb}</div>
                         <div class="video-content">
                             <h3 class="video-title">${c.title}</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">${c.desc}</p>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">${c.desc || 'Sem descrição'}</p>
                             <button class="btn btn-primary" onclick="viewContent('${c.link}', '${c.type}')">Assistir Aula</button>
                         </div>
                     </div>`;
             }).join('') : '<p style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">Sem aulas no momento.</p>';
+
+            // --- RELATÓRIOS (ANÁLISES) ---
+            // Filtra por ID ou Nome (retrocompatibilidade)
+            const myReports = reports.filter(r =>
+                (r.studentId && (String(r.studentId) === String(student.id) || String(r.studentId) === String(student._id))) ||
+                (r.student && r.student === student.name)
+            );
+
+            document.getElementById('reportCount').innerText = `${myReports.length} relatórios`;
+            const repGrid = document.getElementById('studentReportsGrid');
+            repGrid.innerHTML = myReports.length ? myReports.map(r => `
+                <div class="report-card-premium">
+                    <span class="report-date">${r.date}</span>
+                    <p style="font-size: 1.1rem; color: #fff; line-height: 1.6;">"${r.feedback}"</p>
+                    <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <div style="width: 32px; height: 32px; background: var(--gradient-primary); border-radius: 50%;"></div>
+                        <span style="font-size: 0.9rem; font-weight: 700;">Professor da Toque+</span>
+                    </div>
+                </div>
+            `).join('') : '<p style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">Nenhuma análise recebida ainda.</p>';
+
+
+            // --- ATIVIDADES (QUIZ) ---
+            const myActivities = activities.filter(a => a.recipients.includes(String(student.id)) || a.recipients.includes(String(student._id)));
+            document.getElementById('actCount').innerText = `${myActivities.length} pendentes`;
+            const actGrid = document.getElementById('studentActivityGrid');
+            actGrid.innerHTML = myActivities.length ? myActivities.map(a => `
+                 <div class="video-card-premium" style="padding: 0;">
+                    <div style="padding: 2rem;">
+                        <span class="report-date" style="color: var(--accent-pink); margin-bottom: 0.5rem; display: block;">${a.date}</span>
+                        <h3 class="video-title" style="font-size: 1.5rem;">${a.title}</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem;">${a.questions.length} Questões</p>
+                        <button class="btn btn-primary" onclick="startQuiz('${a._id || a.id}')" style="background: var(--accent-pink); border: none;">Iniciar Atividade</button>
+                    </div>
+                </div>
+            `).join('') : '<p style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">Nenhuma atividade pendente.</p>';
+
+            // Notificações (Simples)
+            checkNotifications(myContents.length, myReports.length, myActivities.length);
         }
-
-        function viewContent(link, type) {
-            if (!link) return;
-
-            // Se for YouTube, abre modal Player
-            if (link.includes('youtube') || link.includes('youtu.be')) {
-                const videoId = link.split('v=')[1]?.split('&')[0] || link.split('/').pop();
-                const emberUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-
-                document.getElementById('videoPlayerIframe').src = emberUrl;
-                document.getElementById('modalPlayer').style.display = 'flex';
-            } else {
-                // Se for Drive ou outro, abre em nova aba
-                window.open(link, '_blank');
-            }
-        }
-
-        function closePlayer() {
-            document.getElementById('videoPlayerIframe').src = "";
-            document.getElementById('modalPlayer').style.display = 'none';
-        }
-
-        // ... (rest of the file functions remains unchanged until window.onload) ...
-
-        // (Keeping existing toast/notification logic implicit as we are just replacing the renderProfile block broadly to cover context)
-        // Actually, replacing from renderProfile (482) to closePlayer (545) covers the main logic.
-        // Wait, I need to be careful not to delete unrelated functions if I select a large block.
-        // I will target specifically 494 to 524 for the renderProfile internal logic.
-
-        // REVISED STRATEGY: Target smaller chunks.
-
 
         function viewContent(link, type) {
             if (!link) return;
