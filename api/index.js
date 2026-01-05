@@ -20,7 +20,8 @@ const PORT = process.env.PORT || 3001;
 
 // Conexões (Executa a cada requisição fria no serverless)
 connectDB();
-// initFirebase(); // Desabilitado temporariamente para isolar erro 500
+initFirebase(); // Inicializa se as credenciais existirem
+
 
 // Middlewares
 app.use(cors());
