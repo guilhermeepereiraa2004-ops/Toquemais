@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Toque+ - Plataforma de Educação Musical. Aprenda música com professores especializados.">
+  <title>Toque+ | Plataforma de Educação Musical</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="#" class="navbar-logo" onclick="showPage('home')">
+          <div class="logo-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="18" fill="url(#gradient1)" />
+              <path d="M15 12L25 20L15 28V12Z" fill="white" />
+              <defs>
+                <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#A760FF" />
+                  <stop offset="1" stop-color="#FF6BA9" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">Toque<span class="logo-plus">+</span></span>
+        </a>
+
+        <div class="navbar-links">
+          <a href="#" class="nav-link" onclick="showPage('home')">Início</a>
+          <a href="#" class="nav-link" onclick="showPage('login')">Entrar</a>
+          <a href="#" class="btn btn-primary btn-sm" onclick="showPage('login')">Começar Agora</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Home Page -->
+  <div id="home-page" class="page active">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+      </div>
+
+      <div class="container">
+        <div class="hero-content animate-fade-in">
+          <h1 class="hero-title">
+            Aprenda Música com os<br>
+            <span class="text-gradient">Melhores Professores</span>
+          </h1>
+          <p class="hero-subtitle">
+            Plataforma completa de educação musical com vídeos, materiais didáticos,
+            acompanhamento personalizado e muito mais.
+          </p>
+          <div class="hero-buttons">
+            <a href="#" class="btn btn-primary btn-lg" onclick="showPage('login')">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.66667 5L11.6667 10L6.66667 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              Começar Agora
+            </a>
+            <a href="#features" class="btn btn-outline btn-lg">
+              Saiba Mais
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number">500+</div>
+              <div class="stat-label">Alunos Ativos</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">1000+</div>
+              <div class="stat-label">Vídeo Aulas</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">98%</div>
+              <div class="stat-label">Satisfação</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section features">
+      <div class="container">
+        <div class="section-header text-center">
+          <h2>Recursos da Plataforma</h2>
+          <p>Tudo que você precisa para evoluir na música</p>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card card-glass">
+            <div class="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="url(#grad1)" />
+                <path d="M18 16L30 24L18 32V16Z" fill="white" />
+                <defs>
+                  <linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#A760FF" />
+                    <stop offset="1" stop-color="#FF6BA9" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Vídeo Aulas HD</h3>
+            <p>Acesse centenas de vídeo aulas em alta qualidade, organizadas por nível e instrumento.</p>
+          </div>
+
+          <div class="card card-glass">
+            <div class="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="url(#grad2)" />
+                <path d="M14 18H34M14 24H34M14 30H26" stroke="white" stroke-width="3" stroke-linecap="round" />
+                <defs>
+                  <linearGradient id="grad2" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#60D5FF" />
+                    <stop offset="1" stop-color="#A760FF" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Material Didático</h3>
+            <p>PDFs, apresentações e partituras para complementar seus estudos.</p>
+          </div>
+
+          <div class="card card-glass">
+            <div class="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="url(#grad3)" />
+                <circle cx="24" cy="24" r="8" stroke="white" stroke-width="3" />
+                <path d="M24 16V12M24 36V32M32 24H36M12 24H16" stroke="white" stroke-width="3" stroke-linecap="round" />
+                <defs>
+                  <linearGradient id="grad3" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#FFB060" />
+                    <stop offset="1" stop-color="#FF6BA9" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Acompanhamento Personalizado</h3>
+            <p>Receba notificações sobre novos conteúdos e lembretes de pagamento.</p>
+          </div>
+
+          <div class="card card-glass">
+            <div class="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="url(#grad4)" />
+                <path d="M16 28L22 22L26 26L32 20" stroke="white" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <defs>
+                  <linearGradient id="grad4" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#60FFB0" />
+                    <stop offset="1" stop-color="#60D5FF" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Níveis de Progresso</h3>
+            <p>Evolua do Iniciante ao Master com conteúdo adaptado ao seu nível.</p>
+          </div>
+
+          <div class="card card-glass">
+            <div class="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="url(#grad5)" />
+                <rect x="14" y="14" width="20" height="20" rx="2" stroke="white" stroke-width="3" />
+                <path d="M20 14V10M28 14V10M14 22H34" stroke="white" stroke-width="3" stroke-linecap="round" />
+                <defs>
+                  <linearGradient id="grad5" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#FF60D5" />
+                    <stop offset="1" stop-color="#A760FF" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Agenda de Estudos</h3>
+            <p>Organize seus estudos com datas e tópicos personalizados.</p>
+          </div>
+
+          <div class="card card-glass">
+            <div class="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="url(#grad6)" />
+                <rect x="12" y="16" width="24" height="16" rx="2" stroke="white" stroke-width="3" />
+                <circle cx="18" cy="24" r="2" fill="white" />
+                <circle cx="30" cy="24" r="2" fill="white" />
+                <defs>
+                  <linearGradient id="grad6" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#FFD560" />
+                    <stop offset="1" stop-color="#FFB060" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Acesso Mobile</h3>
+            <p>Estude onde estiver com nosso aplicativo mobile (em breve).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta">
+      <div class="container">
+        <div class="cta-card card-glass">
+          <h2>Pronto para Começar sua Jornada Musical?</h2>
+          <p>Junte-se a centenas de alunos que já estão transformando sua relação com a música.</p>
+          <a href="#" class="btn btn-primary btn-lg" onclick="showPage('login')">
+            Acessar Plataforma
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Login Page -->
+  <div id="login-page" class="page">
+    <div class="login-page-content">
+      <div class="login-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+
+      <div class="container">
+        <div class="login-container">
+          <div class="login-card card-glass">
+            <div class="login-header">
+              <h2>Acesse sua Conta</h2>
+              <p>Entre com suas credenciais fornecidas pelo professor</p>
+            </div>
+
+            <form id="login-form" class="login-form">
+              <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="password">Senha</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="userType">Tipo de Usuário</label>
+                <select id="userType" name="userType" class="form-select">
+                  <option value="student">Aluno</option>
+                  <option value="admin">Professor/Administrador</option>
+                </select>
+              </div>
+
+              <div class="form-footer">
+                <a href="#" class="forgot-password">Esqueceu a senha? Entre em contato com o professor.</a>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-full">
+                Entrar
+              </button>
+            </form>
+
+            <div class="login-note">
+              <p
+                style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-top: var(--spacing-md);">
+                <strong>Novo aluno?</strong> Solicite suas credenciais de acesso ao professor.
+              </p>
+            </div>
+          </div>
+
+          <div class="login-info">
+            <div class="info-card card-glass">
+              <h3>🎵 Acesso Total</h3>
+              <p>Centenas de vídeo aulas e materiais didáticos</p>
+            </div>
+            <div class="info-card card-glass">
+              <h3>📱 Estude Onde Quiser</h3>
+              <p>Acesso via web e aplicativo mobile</p>
+            </div>
+            <div class="info-card card-glass">
+              <h3>🎯 Acompanhamento</h3>
+              <p>Notificações e lembretes personalizados</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Dashboard -->
+  <div id="student-dashboard" class="page">
+    <div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <div class="welcome-section">
+          <h1>Olá, João Silva! 👋</h1>
+          <p>Continue sua jornada musical</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span class="badge badge-intermediate">Intermediário</span>
+          <button class="btn btn-outline" onclick="logout()">Sair</button>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+          <div
+            style="width: 56px; height: 56px; border-radius: 12px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 6L16 12L8 18V6Z" fill="white" />
+            </svg>
+          </div>
+          <div>
+            <div
+              style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+              24</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Aulas Concluídas</div>
+          </div>
+        </div>
+
+        <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+          <div
+            style="width: 56px; height: 56px; border-radius: 12px; background: var(--gradient-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="none" />
+              <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div>
+            <div
+              style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+              12h</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Tempo de Estudo</div>
+          </div>
+        </div>
+
+        <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+          <div
+            style="width: 56px; height: 56px; border-radius: 12px; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 11L12 14L22 4" stroke="white" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M21 12V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H16" stroke="white"
+                stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div>
+            <div
+              style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+              65%</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Progresso</div>
+          </div>
+        </div>
+
+        <div class="card"
+          style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem; border: 2px solid rgba(255, 213, 96, 0.3);">
+          <div
+            style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #FFD560, #FFB060); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="6" width="20" height="12" rx="2" stroke="white" stroke-width="2" />
+              <path d="M2 10H22" stroke="white" stroke-width="2" />
+            </svg>
+          </div>
+          <div>
+            <div
+              style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+              15/01/2025</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Próximo Pagamento</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Lessons -->
+      <div style="margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 style="margin: 0; font-size: 1.75rem;">Suas Aulas</h2>
+          <a href="#" style="color: var(--primary-purple); text-decoration: none; font-weight: 600;">Ver Todas →</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+          <!-- Video Card 1 -->
+          <div class="card" style="cursor: pointer;">
+            <div
+              style="position: relative; width: 100%; aspect-ratio: 16/9; background: var(--bg-dark); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="24" fill="url(#vidGrad1)" />
+                <path d="M19 16L31 24L19 32V16Z" fill="white" />
+                <defs>
+                  <linearGradient id="vidGrad1" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#A760FF" />
+                    <stop offset="1" stop-color="#FF6BA9" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span
+                style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.8); color: white; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">15:30</span>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Técnicas de Dedilhado Avançado</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-muted); font-size: 0.9rem;">Técnica</span>
+              <span class="badge badge-intermediate" style="font-size: 0.75rem;">Intermediário</span>
+            </div>
+          </div>
+
+          <!-- Video Card 2 -->
+          <div class="card" style="cursor: pointer;">
+            <div
+              style="position: relative; width: 100%; aspect-ratio: 16/9; background: var(--bg-dark); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="24" fill="url(#vidGrad2)" />
+                <path d="M19 16L31 24L19 32V16Z" fill="white" />
+                <defs>
+                  <linearGradient id="vidGrad2" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#60D5FF" />
+                    <stop offset="1" stop-color="#A760FF" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span
+                style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.8); color: white; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">22:15</span>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Teoria Musical: Escalas Maiores</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-muted); font-size: 0.9rem;">Teoria</span>
+              <span class="badge badge-intermediate" style="font-size: 0.75rem;">Intermediário</span>
+            </div>
+          </div>
+
+          <!-- Video Card 3 -->
+          <div class="card" style="cursor: pointer;">
+            <div
+              style="position: relative; width: 100%; aspect-ratio: 16/9; background: var(--bg-dark); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="24" fill="url(#vidGrad3)" />
+                <path d="M19 16L31 24L19 32V16Z" fill="white" />
+                <defs>
+                  <linearGradient id="vidGrad3" x1="0" y1="0" x2="48" y2="48">
+                    <stop stop-color="#FFB060" />
+                    <stop offset="1" stop-color="#FF6BA9" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span
+                style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.8); color: white; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">18:45</span>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Improvisação em Blues</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-muted); font-size: 0.9rem;">Prática</span>
+              <span class="badge badge-intermediate" style="font-size: 0.75rem;">Intermediário</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Materials -->
+      <div style="margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 style="margin: 0; font-size: 1.75rem;">Materiais Didáticos</h2>
+          <a href="#" style="color: var(--primary-purple); text-decoration: none; font-weight: 600;">Ver Todos →</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Material 1 -->
+          <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="6" fill="#FF6B6B" />
+              <text x="16" y="21" font-size="12" fill="white" text-anchor="middle" font-weight="bold">PDF</text>
+            </svg>
+            <div style="flex: 1;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Apostila de Escalas.pdf</h4>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">2.5 MB</span>
+            </div>
+            <button class="btn-icon"
+              style="width: 40px; height: 40px; border-radius: 12px; background: transparent; border: 2px solid var(--primary-purple); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 3V13M10 13L6 9M10 13L14 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M3 17H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Material 2 -->
+          <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="6" fill="#FF6B6B" />
+              <text x="16" y="21" font-size="12" fill="white" text-anchor="middle" font-weight="bold">PDF</text>
+            </svg>
+            <div style="flex: 1;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Exercícios de Ritmo.pdf</h4>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">1.8 MB</span>
+            </div>
+            <button class="btn-icon"
+              style="width: 40px; height: 40px; border-radius: 12px; background: transparent; border: 2px solid var(--primary-purple); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 3V13M10 13L6 9M10 13L14 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M3 17H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Material 3 -->
+          <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="6" fill="#FF9F43" />
+              <text x="16" y="21" font-size="10" fill="white" text-anchor="middle" font-weight="bold">PPT</text>
+            </svg>
+            <div style="flex: 1;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Harmonia Funcional.pptx</h4>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">4.2 MB</span>
+            </div>
+            <button class="btn-icon"
+              style="width: 40px; height: 40px; border-radius: 12px; background: transparent; border: 2px solid var(--primary-purple); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 3V13M10 13L6 9M10 13L14 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M3 17H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study Schedule -->
+      <div>
+        <h2 style="margin-bottom: 2rem; font-size: 1.75rem;">Agenda de Estudos</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Schedule Item 1 -->
+          <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+            <div
+              style="background: var(--gradient-primary); width: 60px; height: 60px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;">
+              <div
+                style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: white; line-height: 1;">
+                15</div>
+              <div style="font-size: 0.75rem; color: white; text-transform: uppercase; font-weight: 600;">Jan</div>
+            </div>
+            <div style="flex: 1;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Prática de Escalas Pentatônicas</h4>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">Revisar exercícios 1-5 da apostila
+              </p>
+            </div>
+            <span
+              style="padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: rgba(255, 176, 96, 0.2); color: #FFB060;">Pendente</span>
+          </div>
+
+          <!-- Schedule Item 2 -->
+          <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+            <div
+              style="background: var(--gradient-secondary); width: 60px; height: 60px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;">
+              <div
+                style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: white; line-height: 1;">
+                18</div>
+              <div style="font-size: 0.75rem; color: white; text-transform: uppercase; font-weight: 600;">Jan</div>
+            </div>
+            <div style="flex: 1;">
+              <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Teoria: Modos Gregos</h4>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">Assistir aula e fazer anotações</p>
+            </div>
+            <span
+              style="padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: rgba(96, 213, 255, 0.2); color: #60D5FF;">Em
+              Breve</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard (placeholder) -->
+  <div id="admin-dashboard" class="page">
+    <div class="container-wide">
+      <div class="dashboard-header">
+        <div class="welcome-section">
+          <h1>Painel Administrativo 🎓</h1>
+          <p>Gerencie alunos, conteúdos e notificações</p>
+        </div>
+        <button class="btn btn-outline" onclick="logout()">Sair</button>
+      </div>
+      <div class="card">
+        <h2>Dashboard Administrativo</h2>
+        <p>Aqui você poderá gerenciar todos os aspectos da plataforma.</p>
+        <p style="color: var(--text-muted); margin-top: 1rem;">
+          <strong>Funcionalidades em desenvolvimento:</strong><br>
+          • Gerenciar alunos (adicionar, editar, remover)<br>
+          • Upload de vídeos (até 1GB com compressão)<br>
+          • Upload de materiais (PDF, PPTX)<br>
+          • Enviar notificações personalizadas<br>
+          • Definir datas de pagamento<br>
+          • Atribuir níveis aos alunos (Iniciante, Intermediário, Avançado, Master)<br>
+          • Criar agenda de estudos para cada aluno
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html><!-- Admin Dashboard -->
+<div id="admin-dashboard" class="page">
+    <div class="container-wide" style="padding-top: 2rem; padding-bottom: 3rem;">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <h1>Painel Administrativo ðŸŽ“</h1>
+                <p>Gerencie alunos, conteÃºdos e notificaÃ§Ãµes</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="alert('Funcionalidade de upload em desenvolvimento!')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Novo ConteÃºdo
+                </button>
+                <button class="btn btn-outline" onclick="logout()">Sair</button>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+                <div
+                    style="width: 56px; height: 56px; border-radius: 12px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                    </svg>
+                </div>
+                <div>
+                    <div
+                        style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+                        24</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Total de Alunos</div>
+                </div>
+            </div>
+
+            <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+                <div
+                    style="width: 56px; height: 56px; border-radius: 12px; background: var(--gradient-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 6L16 12L8 18V6Z" fill="white" />
+                    </svg>
+                </div>
+                <div>
+                    <div
+                        style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+                        156</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">VÃ­deo Aulas</div>
+                </div>
+            </div>
+
+            <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+                <div
+                    style="width: 56px; height: 56px; border-radius: 12px; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M14 2V8H20" stroke="white" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div>
+                    <div
+                        style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+                        89</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Materiais</div>
+                </div>
+            </div>
+
+            <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem;">
+                <div
+                    style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #FFD560, #FFB060); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                            stroke="white" stroke-width="2" />
+                        <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <div>
+                    <div
+                        style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.25rem;">
+                        3</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Pagamentos Pendentes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Management -->
+        <div style="margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0; font-size: 1.75rem;">Gerenciar Alunos</h2>
+                <button class="btn btn-secondary"
+                    onclick="alert('Funcionalidade de adicionar aluno em desenvolvimento!')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Adicionar Aluno
+                </button>
+            </div>
+
+            <div class="card" style="padding: 0; overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: rgba(255, 255, 255, 0.03);">
+                        <tr>
+                            <th
+                                style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                Nome</th>
+                            <th
+                                style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                NÃ­vel</th>
+                            <th
+                                style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                PrÃ³ximo Pagamento</th>
+                            <th
+                                style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                Status</th>
+                            <th
+                                style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                AÃ§Ãµes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.1rem;">
+                                        J</div>
+                                    <span style="color: var(--text-primary); font-weight: 500;">JoÃ£o Silva</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-intermediate" style="font-size: 0.75rem;">IntermediÃ¡rio</span>
+                            </td>
+                            <td style="padding: 1rem; color: var(--text-secondary);">15/01/2025</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: rgba(96, 255, 176, 0.2); color: #60FFB0;">Ativo</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Editar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 1L17 5L6 16H2V12L13 1Z" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Notificar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 5.25C13.5 4.05653 13.0259 2.91193 12.182 2.06802C11.3381 1.22411 10.1935 0.75 9 0.75C7.80653 0.75 6.66193 1.22411 5.81802 2.06802C4.97411 2.91193 4.5 4.05653 4.5 5.25C4.5 11.25 1.5 13.5 1.5 13.5H16.5C16.5 13.5 13.5 11.25 13.5 5.25Z"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.1rem;">
+                                        M</div>
+                                    <span style="color: var(--text-primary); font-weight: 500;">Maria Santos</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-beginner" style="font-size: 0.75rem;">Iniciante</span>
+                            </td>
+                            <td style="padding: 1rem; color: var(--text-secondary);">20/01/2025</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: rgba(96, 255, 176, 0.2); color: #60FFB0;">Ativo</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Editar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 1L17 5L6 16H2V12L13 1Z" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Notificar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 5.25C13.5 4.05653 13.0259 2.91193 12.182 2.06802C11.3381 1.22411 10.1935 0.75 9 0.75C7.80653 0.75 6.66193 1.22411 5.81802 2.06802C4.97411 2.91193 4.5 4.05653 4.5 5.25C4.5 11.25 1.5 13.5 1.5 13.5H16.5C16.5 13.5 13.5 11.25 13.5 5.25Z"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.1rem;">
+                                        P</div>
+                                    <span style="color: var(--text-primary); font-weight: 500;">Pedro Costa</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-advanced" style="font-size: 0.75rem;">AvanÃ§ado</span>
+                            </td>
+                            <td style="padding: 1rem; color: var(--text-secondary);">10/01/2025</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: rgba(255, 176, 96, 0.2); color: #FFB060;">Pendente</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Editar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 1L17 5L6 16H2V12L13 1Z" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Notificar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 5.25C13.5 4.05653 13.0259 2.91193 12.182 2.06802C11.3381 1.22411 10.1935 0.75 9 0.75C7.80653 0.75 6.66193 1.22411 5.81802 2.06802C4.97411 2.91193 4.5 4.05653 4.5 5.25C4.5 11.25 1.5 13.5 1.5 13.5H16.5C16.5 13.5 13.5 11.25 13.5 5.25Z"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FF60D5, #A760FF); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.1rem;">
+                                        A</div>
+                                    <span style="color: var(--text-primary); font-weight: 500;">Ana Oliveira</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-master" style="font-size: 0.75rem;">Master</span>
+                            </td>
+                            <td style="padding: 1rem; color: var(--text-secondary);">25/01/2025</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: rgba(96, 255, 176, 0.2); color: #60FFB0;">Ativo</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Editar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 1L17 5L6 16H2V12L13 1Z" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        style="width: 36px; height: 36px; border-radius: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                        title="Notificar">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 5.25C13.5 4.05653 13.0259 2.91193 12.182 2.06802C11.3381 1.22411 10.1935 0.75 9 0.75C7.80653 0.75 6.66193 1.22411 5.81802 2.06802C4.97411 2.91193 4.5 4.05653 4.5 5.25C4.5 11.25 1.5 13.5 1.5 13.5H16.5C16.5 13.5 13.5 11.25 13.5 5.25Z"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div class="card card-glass">
+                <h3 style="margin-bottom: 1rem;">ðŸ“¤ Enviar NotificaÃ§Ã£o</h3>
+                <p style="margin-bottom: 1.5rem;">Envie mensagens e lembretes para seus alunos</p>
+                <button class="btn btn-primary" style="width: 100%;"
+                    onclick="alert('Funcionalidade de notificaÃ§Ãµes em desenvolvimento!')">Criar NotificaÃ§Ã£o</button>
+            </div>
+
+            <div class="card card-glass">
+                <h3 style="margin-bottom: 1rem;">ðŸ“¹ Upload de VÃ­deo</h3>
+                <p style="margin-bottom: 1.5rem;">Adicione novas vÃ­deo aulas Ã  plataforma</p>
+                <button class="btn btn-primary" style="width: 100%;"
+                    onclick="alert('Funcionalidade de upload em desenvolvimento!')">Fazer Upload</button>
+            </div>
+
+            <div class="card card-glass">
+                <h3 style="margin-bottom: 1rem;">ðŸ“Š RelatÃ³rios</h3>
+                <p style="margin-bottom: 1.5rem;">Visualize estatÃ­sticas e progresso dos alunos</p>
+                <button class="btn btn-primary" style="width: 100%;"
+                    onclick="alert('Funcionalidade de relatÃ³rios em desenvolvimento!')">Ver RelatÃ³rios</button>
+            </div>
+        </div>
+    </div>
+</div>
+  <script src="app.js"></script>
+</body>
+
+</html>

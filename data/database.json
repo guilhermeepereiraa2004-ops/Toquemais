@@ -1,0 +1,14 @@
+{
+  "students": [
+    {
+      "name": "Rivas ",
+      "email": "rivasbatista07@gmail.com",
+      "level": "beginner",
+      "payment": "10",
+      "password": "123456",
+      "id": 1767618381806
+    }
+  ],
+  "contents": [],
+  "reports": []
+}

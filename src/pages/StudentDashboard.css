@@ -1,0 +1,349 @@
+.student-dashboard {
+    min-height: 100vh;
+    padding: var(--spacing-xl) 0;
+    background: linear-gradient(180deg, rgba(167, 96, 255, 0.03) 0%, transparent 50%);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.welcome-section h1 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    margin-bottom: var(--spacing-xs);
+}
+
+.welcome-section p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.payment-card {
+    border: 2px solid rgba(255, 213, 96, 0.3);
+}
+
+/* Content Sections */
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+}
+
+.content-section {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.section-header-dash {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-header-dash h2 {
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.view-all {
+    color: var(--primary-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.view-all:hover {
+    color: var(--primary-purple-light);
+    transform: translateX(4px);
+}
+
+/* Video Grid */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.video-card {
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.video-card:hover {
+    transform: translateY(-8px);
+}
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg-dark);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.thumbnail-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-duration {
+    position: absolute;
+    bottom: var(--spacing-xs);
+    right: var(--spacing-xs);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.video-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+}
+
+.video-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.video-category {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Materials List */
+.materials-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.material-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    transition: all var(--transition-normal);
+}
+
+.material-item:hover {
+    transform: translateX(8px);
+}
+
+.material-icon {
+    flex-shrink: 0;
+}
+
+.material-info {
+    flex: 1;
+}
+
+.material-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.material-size {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.btn-download {
+    background: transparent;
+    border: 2px solid var(--primary-purple);
+    color: var(--primary-purple);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.btn-download:hover {
+    background: var(--primary-purple);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Schedule List */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+}
+
+.schedule-date {
+    background: var(--gradient-primary);
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.date-day {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.date-month {
+    font-size: 0.75rem;
+    color: white;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.schedule-info {
+    flex: 1;
+}
+
+.schedule-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.schedule-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.schedule-status {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: rgba(255, 176, 96, 0.2);
+    color: #FFB060;
+}
+
+.status-upcoming {
+    background: rgba(96, 213, 255, 0.2);
+    color: #60D5FF;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section-header-dash {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .material-item:hover {
+        transform: translateY(-4px);
+    }
+
+    .schedule-item {
+        flex-wrap: wrap;
+    }
+
+    .schedule-status {
+        width: 100%;
+        text-align: center;
+    }
+}
