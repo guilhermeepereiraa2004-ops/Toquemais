@@ -795,8 +795,8 @@
                 date: new Date().toLocaleDateString('pt-BR')
             });
 
-            saveData(); closeModal('modalCreateActivity');
-            alert('Atividade disparada para os alunos!');
+            // saveData(); closeModal('modalCreateActivity'); // TODO: Migrar para API
+            closeModal('modalCreateActivity');
         }
 
         function deleteActivity(id) {
