@@ -34,12 +34,7 @@ export const initFirebase = () => {
         console.error("Erro ao iniciar Firebase:", error.message);
     }
 };
-bucket = admin.storage().bucket();
-console.log("🔥 Firebase Storage Conectado!");
-    } catch (error) {
-    console.error("Erro ao iniciar Firebase:", error);
-}
-};
+
 
 export const uploadFileToFirebase = async (fileObject) => {
     if (!bucket) throw new Error("Firebase Storage não inicializado");
