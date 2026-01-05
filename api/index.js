@@ -10,6 +10,7 @@ import { initFirebase, uploadFileToFirebase, deleteFileFromFirebase } from '../s
 import Student from '../src/models/Student.js';
 import Content from '../src/models/Content.js';
 import Report from '../src/models/Report.js';
+import Activity from '../src/models/Activity.js';
 
 dotenv.config();
 
@@ -43,7 +44,6 @@ app.get('/api/health', (req, res) => {
 });
 
 // --- ROTA PRINCIPAL: DADOS AGREGADOS ---
-// --- ROTA PRINCIPAL: DADOS AGREGADOS ---
 app.get('/api/data', async (req, res) => {
     // Fail-safe: Se não tiver conectado ao banco ainda
     if (mongoose.connection.readyState !== 1) {
@@ -53,24 +53,26 @@ app.get('/api/data', async (req, res) => {
                 error: 'Banco de dados não conectado. Verifique MONGODB_URI.',
                 students: [], // Retorna array vazio para não quebrar o frontend
                 contents: [],
-                reports: []
+                reports: [],
+                activities: []
             });
         }
     }
 
     try {
-        const [students, contents, reports] = await Promise.all([
+        const [students, contents, reports, activities] = await Promise.all([
             Student.find().sort({ name: 1 }),
             Content.find().sort({ createdAt: -1 }),
-            Report.find().sort({ createdAt: -1 })
+            Report.find().sort({ createdAt: -1 }),
+            Activity.find().sort({ createdAt: -1 })
         ]);
 
         res.json({
             students,
             contents,
             reports,
-            activities: [],
-            activity_results: []
+            activities,
+            activity_results: [] // TODO: Implementar persistência de resultados
         });
     } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -116,10 +118,16 @@ app.delete('/api/students/:id', async (req, res) => {
 // --- ROTAS CONTEÚDO (UPLOAD) ---
 app.post('/api/content', upload.single('file'), async (req, res) => {
     try {
+        // Garantir que recipients seja salva corretamente (se vier stringificada)
+        let recipients = req.body.recipients;
+        if (typeof recipients === 'string') {
+            try { recipients = JSON.parse(recipients); } catch (e) { recipients = [recipients]; }
+        }
+
         if (!req.file) {
             const newContent = await Content.create({
                 ...req.body,
-                recipients: req.body.recipients
+                recipients: recipients
             });
             return res.json({ success: true, content: newContent });
         }
@@ -128,7 +136,7 @@ app.post('/api/content', upload.single('file'), async (req, res) => {
             const fileData = await uploadFileToFirebase(req.file);
             const newContent = await Content.create({
                 ...req.body,
-                recipients: req.body.recipients,
+                recipients: recipients,
                 fileUrl: fileData.url,
                 fileName: fileData.fileName,
                 fileType: req.file.mimetype,
@@ -168,6 +176,38 @@ app.post('/api/reports', async (req, res) => {
     try {
         const newReport = await Report.create(req.body);
         res.json(newReport);
+    } catch (error) {
+        console.error("Erro ao salvar report:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/reports/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Report.findOneAndDelete({ $or: [{ id }, { _id: id }] });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- ROTAS ATIVIDADES ---
+app.post('/api/activities', async (req, res) => {
+    try {
+        const newActivity = await Activity.create(req.body);
+        res.json(newActivity);
+    } catch (error) {
+        console.error("Erro activity:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/activities/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Activity.findOneAndDelete({ $or: [{ id }, { _id: id }] });
+        res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

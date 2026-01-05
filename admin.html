@@ -789,16 +789,128 @@
                 correct: qi.querySelector('.q-correct').value
             }));
 
-            activities.unshift({
-                id: Date.now(),
+            const payload = {
                 title: document.getElementById('actTitle').value,
-                questions,
+                date: new Date().toLocaleDateString('pt-BR'),
                 recipients,
-                date: new Date().toLocaleDateString('pt-BR')
-            });
+                questions
+            };
 
-            // saveData(); closeModal('modalCreateActivity'); // TODO: Migrar para API
-            closeModal('modalCreateActivity');
+            try {
+                const res = await fetch(`${API_URL}/activities`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Atividade criada e enviada!');
+                    loadData(); // Recarrega tudo
+                    closeModal('modalCreateActivity');
+                    e.target.reset();
+                    document.getElementById('questionsContainer').innerHTML = ''; // Limpa perguntas
+                } else {
+                    const err = await res.json();
+                    alert('Erro ao criar: ' + err.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro de conexão ao criar atividade.');
+            }
+        }
+
+        // ... (outras funções omitidas se não mudarem) ...
+        // ... Vou pular o bloco de compressFile/handleUpload que já está ok ...
+
+        // REESCREVENDO handleUpload para garantir que recipients vá certo
+        async function handleUpload(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+
+            // Pega IDs dos checkboxes (Values são IDs agora)
+            const selectedIds = Array.from(document.querySelectorAll('#uploadStudentList input:checked')).map(cb => cb.value);
+
+            if (!selectedIds.length) return alert('Selecione os destinatários.');
+
+            // Log para debug
+            console.log("Enviando upload para:", selectedIds);
+
+            const fileInput = document.getElementById('uploadFile');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+
+            formData.append('title', document.getElementById('uploadTitle').value);
+            formData.append('desc', document.getElementById('uploadDesc').value);
+            // Array deve ser enviado repetido ou como JSON string dependendo do Multer, vamos de JSON string para garantir
+            formData.append('recipients', JSON.stringify(selectedIds));
+            formData.append('date', new Date().toLocaleDateString('pt-BR'));
+
+            if (file) {
+                formData.append('file', file);
+            }
+
+            btn.innerText = "Processando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/content`, {
+                    method: 'POST',
+                    body: formData // Fetch gerencia o Content-Type para FormData
+                });
+
+                if (res.ok) {
+                    alert('Conteúdo enviado com sucesso!');
+                    loadData();
+                    closeModal('modalUpload');
+                    e.target.reset();
+                } else {
+                    const err = await res.json();
+                    alert('Erro: ' + err.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao enviar conteúdo.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function createActivity_LEGACY_REMOVED(e) { /* Placeholder para garantir o replace */ }
+
+        // Nova versão AddReport com API
+        async function addReport(e) {
+            e.preventDefault();
+            const feedback = document.getElementById('reportFeedback').value;
+            // Checkbox values are now correct IDs (String) from previous fix
+            const ids = Array.from(document.querySelectorAll('#reportStudentList input:checked')).map(cb => cb.value);
+
+            if (ids.length === 0) return alert('Selecione pelo menos um aluno.');
+
+            try {
+                // Enviar um report para cada aluno
+                for (const id of ids) {
+                    // Encontrar nome para garantir (embora backend agora aceite null)
+                    const s = students.find(st => String(st._id) === String(id) || String(st.id) === String(id));
+                    const studentName = s ? s.name : 'Aluno';
+
+                    await fetch(`${API_URL}/reports`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            studentId: id,
+                            student: studentName,
+                            feedback,
+                            date: new Date().toLocaleDateString('pt-BR')
+                        })
+                    });
+                }
+                alert('Feedbacks enviados!');
+                closeModal('modalAddReport');
+                loadData();
+                e.target.reset();
+            } catch (err) { alert('Erro ao enviar feedback: ' + err.message); }
         }
 
 
@@ -870,29 +982,8 @@
             } catch (err) { console.error(err); }
         }
 
-        async function addReport(e) {
-            e.preventDefault();
-            const feedback = document.getElementById('reportFeedback').value;
-            // Checkbox values are now correct IDs (String) from previous fix
-            const ids = Array.from(document.querySelectorAll('#reportStudentList input:checked')).map(cb => cb.value);
+        // addReport MOVIDO PARA CIMA (API INTEGRATION)
 
-            if (ids.length === 0) return alert('Selecione pelo menos um aluno.');
-
-            try {
-                // Enviar um report para cada aluno (poderia ser bulk, mas vamos 1 por 1 por enquanto)
-                for (const id of ids) {
-                    await fetch(`${API_URL}/reports`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ studentId: id, feedback, date: new Date().toLocaleDateString('pt-BR') })
-                    });
-                }
-                alert('Feedbacks enviados!');
-                closeModal('modalAddReport');
-                loadData();
-                e.target.reset();
-            } catch (err) { alert('Erro ao enviar feedback.'); }
-        }
 
         async function deleteReport(id) {
             if (!confirm('Apagar histórico?')) return;
