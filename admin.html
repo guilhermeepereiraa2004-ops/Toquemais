@@ -641,8 +641,8 @@
                         <td><span class="badge badge-${s.level}">${levelMap[s.level] || s.level}</span></td>
                         <td style="color: var(--text-secondary); font-weight: 700;">Todo dia ${s.payment || '?'}</td>
                         <td style="display: flex; justify-content: center; gap: 0.8rem;">
-                            <button class="circle-btn" onclick="openManageStudent('${s._id || s.id}')">✏️</button>
-                            <button class="circle-btn delete" onclick="deleteStudent('${s._id || s.id}')">🗑️</button>
+                            <button class="circle-btn" onclick="window.openManageStudent('${s._id || s.id}')">✏️</button>
+                            <button class="circle-btn delete" onclick="window.deleteStudent('${s._id || s.id}')">🗑️</button>
                         </td>
                     </tr>
                 `;
