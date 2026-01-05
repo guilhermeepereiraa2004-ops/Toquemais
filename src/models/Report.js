@@ -1,13 +1,11 @@
 import mongoose from 'mongoose';
 
 const ReportSchema = new mongoose.Schema({
-    id: { type: Number, default: () => Date.now() },
-    studentId: { type: String, required: true },
-    studentName: { type: String },
-    date: { type: String },
-    topic: { type: String },
-    performance: { type: String },
-    notes: { type: String },
+    id: { type: String, default: () => Date.now().toString() },
+    student: { type: String, required: true }, // Nome do aluno
+    studentId: { type: String }, // ID opcional para relacionar
+    feedback: { type: String, required: true },
+    date: { type: String, default: () => new Date().toLocaleDateString('pt-BR') },
     createdAt: { type: Date, default: Date.now }
 });
 
