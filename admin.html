@@ -735,7 +735,7 @@
                 const list = document.getElementById(containerId);
                 list.innerHTML = students.map(s => `
                     <label style="display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer;">
-                        <input type="checkbox" name="studentSelect" value="${s.id}"> 
+                        <input type="checkbox" name="studentSelect" value="${s._id || s.id}"> 
                         <span>${s.name}</span>
                     </label>
                 `).join('') || '<p style="padding: 1rem; opacity: 0.5;">Nenhum aluno no sistema.</p>';
