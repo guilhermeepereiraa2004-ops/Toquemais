@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import fs from 'fs-extra';
+// import fs from 'fs-extra'; // Removed to avoid dependency issues
 
 // You must manually put the firebase-key.json in the root folder
 // CAUTION: In production (Vercel), we should use Environment Variables for the private key
@@ -10,32 +10,35 @@ let bucket;
 export const initFirebase = () => {
     try {
         if (!admin.apps.length) {
-            // Check if we have the JSON file locally
-            if (fs.existsSync('firebase-key.json')) {
-                const serviceAccount = fs.readJsonSync('firebase-key.json');
-                admin.initializeApp({
-                    credential: admin.credential.cert(serviceAccount),
-                    storageBucket: process.env.FIREBASE_BUCKET_URL // e.g., 'meu-app.appspot.com'
-                });
-            } else {
-                // If on Vercel, we might try to parse the env variable containing the JSON
-                if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+            // Priority: Environment Variable (Vercel)
+            if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+                try {
                     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
                     admin.initializeApp({
                         credential: admin.credential.cert(serviceAccount),
                         storageBucket: process.env.FIREBASE_BUCKET_URL
                     });
-                } else {
-                    console.error("⚠️ Firebase credentials not found (firebase-key.json or env var)");
-                    return;
+                    console.log("🔥 Firebase (Env Var) Initialized");
+                } catch (e) {
+                    console.error("❌ Invalid FIREBASE_SERVICE_ACCOUNT JSON");
                 }
+            } else {
+                console.log("⚠️ Firebase credentials MISSING (Env Var). Uploads will fail.");
             }
         }
-        bucket = admin.storage().bucket();
-        console.log("🔥 Firebase Storage Conectado!");
+        if (admin.apps.length) {
+            bucket = admin.storage().bucket();
+            console.log("🔥 Firebase Storage Connected!");
+        }
     } catch (error) {
-        console.error("Erro ao iniciar Firebase:", error);
+        console.error("Erro ao iniciar Firebase:", error.message);
     }
+};
+bucket = admin.storage().bucket();
+console.log("🔥 Firebase Storage Conectado!");
+    } catch (error) {
+    console.error("Erro ao iniciar Firebase:", error);
+}
 };
 
 export const uploadFileToFirebase = async (fileObject) => {
