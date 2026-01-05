@@ -81,6 +81,7 @@ app.get('/api/data', async (req, res) => {
 // --- ROTAS ALUNOS ---
 app.post('/api/students', async (req, res) => {
     try {
+        await connectDB();
         const { email } = req.body;
         const exists = await Student.findOne({ email });
         if (exists) return res.status(400).json({ error: 'E-mail já cadastrado.' });
