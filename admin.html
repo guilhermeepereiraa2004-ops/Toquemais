@@ -639,7 +639,7 @@
                             </div>
                         </td>
                         <td><span class="badge badge-${s.level}">${levelMap[s.level] || s.level}</span></td>
-                        <td style="color: var(--text-secondary); font-weight: 700;">Todo dia ${s.payment}</td>
+                        <td style="color: var(--text-secondary); font-weight: 700;">Todo dia ${s.payment || '?'}</td>
                         <td style="display: flex; justify-content: center; gap: 0.8rem;">
                             <button class="circle-btn" onclick="openManageStudent('${s._id || s.id}')">✏️</button>
                             <button class="circle-btn delete" onclick="deleteStudent('${s._id || s.id}')">🗑️</button>
@@ -799,17 +799,39 @@
             closeModal('modalCreateActivity');
         }
 
+        // Tornar funções acessíveis globalmente
+        window.openManageStudent = openManageStudent;
+        window.handleEditStudent = handleEditStudent;
+        window.deleteStudent = deleteStudent;
+        window.deleteContent = deleteContent;
+        window.deleteActivity = deleteActivity;
+        window.deleteResult = deleteResult;
+        window.deleteReport = deleteReport;
+        window.addStudent = addStudent;
+        window.handleUpload = handleUpload;
+        window.createActivity = createActivity;
+        window.addReport = addReport;
+        window.switchTab = switchTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.toggleLinkPlaceholder = toggleLinkPlaceholder;
+        window.addQuestionField = addQuestionField;
+
         // --- GERENCIAMENTO DE ESTUDANTES (EDITAR) ---
         function openManageStudent(id) {
+            console.log("Abrindo edição para ID:", id);
             const student = students.find(s => (s._id || s.id) === id);
-            if (!student) return alert('Aluno não encontrado.');
+            if (!student) {
+                console.error("Aluno não encontrado na lista:", students);
+                return alert('Aluno não encontrado.');
+            }
 
             document.getElementById('editStudentId').value = student._id || student.id;
             document.getElementById('editStudentName').value = student.name;
             document.getElementById('editStudentEmail').value = student.email;
-            document.getElementById('editStudentPass').value = student.password; // Aviso: Em prod, não retornar senha
+            document.getElementById('editStudentPass').value = student.password;
             document.getElementById('editStudentLevel').value = student.level;
-            document.getElementById('editStudentPayment').value = student.payment || ''; // Preencher pagamento
+            document.getElementById('editStudentPayment').value = student.payment || '';
 
             openModal('modalEditStudent');
         }
