@@ -682,8 +682,14 @@
         let quizAnswers = [];
 
         function startQuiz(id) {
-            const activities = JSON.parse(localStorage.getItem('toque_activities') || '[]');
-            currentQuiz = activities.find(a => a.id === id);
+            const activities = window.globalActivities || [];
+            currentQuiz = activities.find(a => String(a._id) === String(id) || String(a.id) === String(id));
+
+            if (!currentQuiz) {
+                console.error("Quiz não encontrado:", id, activities);
+                return alert('Erro ao carregar atividade. Tente recarregar a página.');
+            }
+
             quizAnswers = new Array(currentQuiz.questions.length).fill(null);
             showQuestion(0);
             document.getElementById('modalQuiz').style.display = 'flex';
