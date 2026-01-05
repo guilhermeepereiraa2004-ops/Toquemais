@@ -17,6 +17,8 @@ const connectDB = async () => {
     if (!cached.promise) {
         const opts = {
             bufferCommands: false, // Don't buffer if connection fails
+            serverSelectionTimeoutMS: 5000, // Fail fast (5s) if DB is unreachable (IP block/Auth error)
+            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
         };
 
         cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
