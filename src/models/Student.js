@@ -8,6 +8,7 @@ const StudentSchema = new mongoose.Schema({
     cpf: { type: String },
     phone: { type: String },
     nextPayment: { type: String }, // Alterado para String para aceitar data "YYYY-MM-DD"
+    payment: { type: String }, // Dia do vencimento (1-31)
     level: { type: String, default: 'beginner' }, // Removido enum estrito para evitar erros de validação
     studyTopic: { type: String },
     active: { type: Boolean, default: true },
