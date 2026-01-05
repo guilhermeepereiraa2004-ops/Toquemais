@@ -492,10 +492,23 @@
             document.getElementById('studentLevelDisplay').innerText = levelMap[student.level] || student.level;
 
             // ... (Lógica de pagamento mantida visualmente, mas precisa de dados reais se quiser) ...
-            document.getElementById('paymentDateBig').innerText = `Todo dia ${student.payment}`;
+            document.getElementById('paymentDateBig').innerText = `Todo dia ${student.payment || '?'}`;
+
+            // Lógica de Status do Pagamento
+            const today = new Date().getDate();
+            const payDay = parseInt(student.payment) || 10;
+            const statusTag = document.getElementById('paymentStatusTag');
+
+            if (today > payDay) {
+                statusTag.innerText = "PRÓXIMO CICLO";
+                statusTag.style.color = "var(--primary-purple-light)";
+            } else {
+                statusTag.innerText = "EM ABERTO";
+                statusTag.style.color = "#fbbf24"; // Amarelo
+            }
 
             // Listar vídeos: Filtrar pelo ID do aluno (string) que está no array recipients
-            const myContents = contents.filter(c => c.recipients.includes(String(student.id)));
+            const myContents = contents.filter(c => c.recipients.includes(String(student.id)) || c.recipients.includes(String(student._id)));
 
             document.getElementById('videoCount').innerText = `${myContents.length} aulas disponíveis`;
 
@@ -522,6 +535,37 @@
                     </div>`;
             }).join('') : '<p style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">Sem aulas no momento.</p>';
         }
+
+        function viewContent(link, type) {
+            if (!link) return;
+
+            // Se for YouTube, abre modal Player
+            if (link.includes('youtube') || link.includes('youtu.be')) {
+                const videoId = link.split('v=')[1]?.split('&')[0] || link.split('/').pop();
+                const emberUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+
+                document.getElementById('videoPlayerIframe').src = emberUrl;
+                document.getElementById('modalPlayer').style.display = 'flex';
+            } else {
+                // Se for Drive ou outro, abre em nova aba
+                window.open(link, '_blank');
+            }
+        }
+
+        function closePlayer() {
+            document.getElementById('videoPlayerIframe').src = "";
+            document.getElementById('modalPlayer').style.display = 'none';
+        }
+
+        // ... (rest of the file functions remains unchanged until window.onload) ...
+
+        // (Keeping existing toast/notification logic implicit as we are just replacing the renderProfile block broadly to cover context)
+        // Actually, replacing from renderProfile (482) to closePlayer (545) covers the main logic.
+        // Wait, I need to be careful not to delete unrelated functions if I select a large block.
+        // I will target specifically 494 to 524 for the renderProfile internal logic.
+
+        // REVISED STRATEGY: Target smaller chunks.
+
 
         function viewContent(link, type) {
             if (!link) return;
@@ -708,7 +752,7 @@
             document.getElementById('modalQuiz').style.display = 'none';
         }
 
-        window.onload = loadStudentProfile;
+        window.onload = loadData;
     </script>
 </body>
 
