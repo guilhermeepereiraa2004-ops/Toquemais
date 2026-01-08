@@ -28,6 +28,19 @@
     content="Acesse seus vídeos, relatórios e atividades na plataforma oficial Toquemais.">
   <meta name="twitter:image" content="https://toquemais.vercel.app/logo.jpg">
 
+  <!-- PWA MANIFEST -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#a760ff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Toque+">
+
+  <!-- ICONS -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon-192x192.png">
+
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23a760ff;stop-opacity:1%22 /><stop offset=%22100%25%22 style=%22stop-color:%23ec4899;stop-opacity:1%22 /></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22 /><text y=%22.9em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2270%22 font-family=%22sans-serif%22 font-weight=%22800%22 fill=%22white%22>T+</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
@@ -127,6 +140,19 @@
         btn.disabled = false;
       }
     });
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('SW registered:', registration);
+          })
+          .catch(error => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
   </script>
 </body>
 

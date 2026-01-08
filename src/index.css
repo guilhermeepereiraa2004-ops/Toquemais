@@ -21,6 +21,8 @@
   --text-primary: hsl(0, 0%, 98%);
   --text-secondary: hsl(0, 0%, 70%);
   --text-muted: hsl(0, 0%, 50%);
+  --success: #60FFB0;
+  --border: rgba(255, 255, 255, 0.1);
 
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--primary-purple) 0%, var(--accent-pink) 100%);

@@ -14,6 +14,9 @@ function AdminDashboard() {
     const [students, setStudents] = useState([])
     const [contents, setContents] = useState([])
     const [reports, setReports] = useState([])
+    const [activities, setActivities] = useState([])
+    const [selectedActivity, setSelectedActivity] = useState(null)
+    const [showActivityModal, setShowActivityModal] = useState(false)
     const [editingContent, setEditingContent] = useState(null)
     const [selectedRecipients, setSelectedRecipients] = useState(['all'])
     const API_URL = "http://localhost:3001"
@@ -25,6 +28,7 @@ function AdminDashboard() {
             setStudents(data.students || [])
             setContents(data.contents || [])
             setReports(data.reports || [])
+            setActivities(data.activities || [])
         } catch (err) {
             console.error("Servidor offline", err)
         }
@@ -218,6 +222,31 @@ function AdminDashboard() {
         }
     }
 
+    const handleAssignActivity = async (e) => {
+        e.preventDefault();
+        const activityId = selectedActivity.id;
+        const recipients = selectedRecipients;
+
+        try {
+            const response = await fetch(`${API_URL}/api/activities/${activityId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recipients })
+            });
+
+            if (response.ok) {
+                const updatedActivity = await response.json();
+                setActivities(prev => prev.map(a => a.id === activityId ? updatedActivity : a));
+                addToast('Atividade atribuída com sucesso!', 'success');
+                setShowActivityModal(false);
+            }
+        } catch (err) {
+            console.error(err);
+            addToast('Erro ao atribuir atividade.', 'error');
+        }
+    }
+
+
     const handleEditContent = (content) => {
         setEditingContent(content);
         setSelectedRecipients(content.recipients || ['all']);
@@ -305,6 +334,7 @@ function AdminDashboard() {
                 <div className="admin-tabs">
                     <button className={`tab-button ${activeTab === 'students' ? 'active' : ''}`} onClick={() => setActiveTab('students')}>Alunos</button>
                     <button className={`tab-button ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>Conteúdos</button>
+                    <button className={`tab-button ${activeTab === 'activities' ? 'active' : ''}`} onClick={() => setActiveTab('activities')}>Atividades</button>
                     <button className={`tab-button ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>Relatórios</button>
                     <button className={`tab-button ${activeTab === 'finance' ? 'active' : ''}`} onClick={() => setActiveTab('finance')}>Financeiro</button>
                 </div>
@@ -444,6 +474,34 @@ function AdminDashboard() {
                                             <div className="content-actions">
                                                 <button className="btn btn-outline btn-sm" onClick={() => handleEditContent(content)}>Editar</button>
                                                 <button className="btn btn-danger btn-sm" onClick={() => handleDeleteContent(content.id)}>Excluir</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'activities' && (
+                        <div className="content-section-admin">
+                            <h2>Gestão de Atividades</h2>
+                            <div className="content-grid">
+                                {activities.map(activity => (
+                                    <div key={activity.id} className="content-card card" onClick={() => {
+                                        setSelectedActivity(activity);
+                                        setSelectedRecipients(activity.recipients || []);
+                                        setShowActivityModal(true);
+                                    }} style={{ cursor: 'pointer' }}>
+                                        <div className="content-preview" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)' }}>
+                                            <span style={{ fontSize: '3rem' }}>📝</span>
+                                        </div>
+                                        <div className="content-body">
+                                            <h3>{activity.title}</h3>
+                                            <p className="recipients-badge">
+                                                {activity.recipients?.includes('all') ? 'Todos os alunos' : `${activity.recipients?.length || 0} Aluno(s)`}
+                                            </p>
+                                            <div className="content-actions">
+                                                <button className="btn btn-outline btn-sm">Ver Detalhes / Atribuir</button>
                                             </div>
                                         </div>
                                     </div>
@@ -603,6 +661,73 @@ function AdminDashboard() {
                             <div className="modal-actions">
                                 <button type="button" className="btn btn-outline" onClick={() => setShowReportModal(false)}>Cancelar</button>
                                 <button type="submit" className="btn btn-primary">Salvar Relatório</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {showActivityModal && selectedActivity && (
+                <div className="modal-overlay" onClick={() => setShowActivityModal(false)}>
+                    <div className="modal-content card" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+                        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h2>{selectedActivity.title}</h2>
+                            <button className="btn btn-sm btn-outline" onClick={() => setShowActivityModal(false)}>X</button>
+                        </div>
+
+                        <div className="activity-details" style={{ maxHeight: '60vh', overflowY: 'auto', marginBottom: '1rem' }}>
+                            <h3>Questões e Respostas</h3>
+                            {selectedActivity.questions.map((q, idx) => (
+                                <div key={idx} className="question-item" style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                                    <p><strong>{idx + 1}. {q.text}</strong></p>
+                                    <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                                        <li style={{ color: q.correct === 'a' ? 'var(--success)' : 'inherit', fontWeight: q.correct === 'a' ? 'bold' : 'normal' }}>A) {q.a} {q.correct === 'a' && '✅'}</li>
+                                        <li style={{ color: q.correct === 'b' ? 'var(--success)' : 'inherit', fontWeight: q.correct === 'b' ? 'bold' : 'normal' }}>B) {q.b} {q.correct === 'b' && '✅'}</li>
+                                        <li style={{ color: q.correct === 'c' ? 'var(--success)' : 'inherit', fontWeight: q.correct === 'c' ? 'bold' : 'normal' }}>C) {q.c} {q.correct === 'c' && '✅'}</li>
+                                        <li style={{ color: q.correct === 'd' ? 'var(--success)' : 'inherit', fontWeight: q.correct === 'd' ? 'bold' : 'normal' }}>D) {q.d} {q.correct === 'd' && '✅'}</li>
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+
+                        <form onSubmit={handleAssignActivity} className="upload-form">
+                            <h3>Atribuir aos Alunos</h3>
+                            <div className="recipients-selection card">
+                                <label className="checkbox-item">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedRecipients.includes('all')}
+                                        onChange={(e) => {
+                                            if (e.target.checked) setSelectedRecipients(['all']);
+                                            else setSelectedRecipients([]);
+                                        }}
+                                    />
+                                    <span>Todos os alunos</span>
+                                </label>
+                                <div className="students-selection-list">
+                                    {students.map(student => (
+                                        <label key={student.id} className="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                disabled={selectedRecipients.includes('all')}
+                                                checked={selectedRecipients.includes(student.id.toString())}
+                                                onChange={(e) => {
+                                                    const idStr = student.id.toString();
+                                                    if (e.target.checked) {
+                                                        setSelectedRecipients(prev => [...prev.filter(r => r !== 'all'), idStr]);
+                                                    } else {
+                                                        setSelectedRecipients(prev => prev.filter(r => r !== idStr));
+                                                    }
+                                                }}
+                                            />
+                                            <span>{student.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="btn btn-outline" onClick={() => setShowActivityModal(false)}>Fechar</button>
+                                <button type="submit" className="btn btn-primary">Salvar Atribuição</button>
                             </div>
                         </form>
                     </div>

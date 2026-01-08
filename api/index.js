@@ -11,6 +11,7 @@ import Student from '../src/models/Student.js';
 import Content from '../src/models/Content.js';
 import Report from '../src/models/Report.js';
 import Activity from '../src/models/Activity.js';
+import ActivityResult from '../src/models/ActivityResult.js';
 
 dotenv.config();
 
@@ -60,11 +61,12 @@ app.get('/api/data', async (req, res) => {
     }
 
     try {
-        const [students, contents, reports, activities] = await Promise.all([
+        const [students, contents, reports, activities, activity_results] = await Promise.all([
             Student.find().sort({ name: 1 }),
             Content.find().sort({ createdAt: -1 }),
             Report.find().sort({ createdAt: -1 }),
-            Activity.find().sort({ createdAt: -1 })
+            Activity.find().sort({ createdAt: -1 }),
+            ActivityResult.find().sort({ createdAt: -1 })
         ]);
 
         res.json({
@@ -72,7 +74,7 @@ app.get('/api/data', async (req, res) => {
             contents,
             reports,
             activities,
-            activity_results: [] // TODO: Implementar persistência de resultados
+            activity_results
         });
     } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -192,9 +194,32 @@ app.delete('/api/reports/:id', async (req, res) => {
     }
 });
 
+// --- ROTAS RESULTADOS DE ATIVIDADES ---
+app.post('/api/activity_results', async (req, res) => {
+    try {
+        await connectDB(); // Garantir conexão ativa antes de operar
+        const newResult = await ActivityResult.create(req.body);
+        res.json(newResult);
+    } catch (error) {
+        console.error("Erro ao salvar resultado:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/activity_results/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await ActivityResult.findOneAndDelete({ _id: id });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // --- ROTAS ATIVIDADES ---
 app.post('/api/activities', async (req, res) => {
     try {
+        await connectDB(); // Garantir conexão ativa antes de operar
         const newActivity = await Activity.create(req.body);
         res.json(newActivity);
     } catch (error) {
@@ -206,9 +231,70 @@ app.post('/api/activities', async (req, res) => {
 app.delete('/api/activities/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await Activity.findOneAndDelete({ $or: [{ id }, { _id: id }] });
+        let query = {};
+
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            const numericId = Number(id);
+            if (!isNaN(numericId)) {
+                query = { id: numericId };
+            } else {
+                // Se não for nem ObjectId nem numérico, tenta buscar atividades antigas ou retorna erro
+                // Mas geralmente activities antigas usavam ID numérico.
+                // Se chegar aqui com string inválida, melhor retornar erro 400.
+                return res.status(400).json({ error: "ID inválido fornecido." });
+            }
+        }
+
+        const deleted = await Activity.findOneAndDelete(query);
+
+        if (!deleted) {
+            return res.status(404).json({ error: "Atividade não encontrada para remoção." });
+        }
+
         res.json({ success: true });
     } catch (error) {
+        console.error("Erro ao deletar atividade:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/activities/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        let query = {};
+
+        // Verificação segura para construir a query
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            // Tenta converter para número se for numérico
+            const numericId = Number(id);
+            if (!isNaN(numericId)) {
+                query = { id: numericId };
+            } else {
+                // Fallback para string se não for número nem ObjectId válido
+                // (Isso evita CastError se 'id' no schema fosse String, mas aqui é Number, então cuidado)
+                return res.status(400).json({ error: "ID inválido fornecido." });
+            }
+        }
+
+        console.log(`[PUT Activity] ID: ${id}, Body:`, req.body); // Log request
+
+        const updatedActivity = await Activity.findOneAndUpdate(
+            query,
+            { $set: req.body }, // Use $set to ensure we only update provided fields
+            { new: true, runValidators: true } // Run validators (e.g. check for string array)
+        );
+
+        if (!updatedActivity) {
+            return res.status(404).json({ error: "Atividade não encontrada." });
+        }
+
+        res.json(updatedActivity);
+    } catch (error) {
+        console.error("Erro ao atualizar atividade:", error);
         res.status(500).json({ error: error.message });
     }
 });

@@ -321,6 +321,35 @@
             font-size: 0.85rem;
             opacity: 0.8;
         }
+
+        /* Quiz Feedback Styles */
+        .q-option.correct-answer {
+            background: rgba(96, 255, 176, 0.15) !important;
+            border-color: #60ffb0 !important;
+            color: #60ffb0;
+        }
+
+        .q-option.wrong-answer {
+            background: rgba(255, 96, 96, 0.15) !important;
+            border-color: #ff6060 !important;
+            color: #ff6060;
+        }
+
+        .feedback-msg {
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback-success {
+            color: #60ffb0;
+        }
+
+        .feedback-error {
+            color: #ff6060;
+        }
     </style>
 </head>
 
@@ -435,6 +464,23 @@
         </div>
     </div>
 
+    <!-- MODAL CONFIRM -->
+    <div id="modalConfirm" class="modal"
+        style="z-index: 10000; align-items: center; justify-content: center; background: rgba(0,0,0,0.9);">
+        <div class="modal-content"
+            style="max-width: 400px; text-align: center; border: 1px solid var(--primary-purple);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🤔</div>
+            <h3 style="margin-bottom: 1rem; font-family: var(--font-display);">Tem certeza?</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Você escolheu esta alternativa. Após
+                confirmar, não será possível alterar sua resposta.</p>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="confirmChoice(false)">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmChoice(true)"
+                    style="background: var(--gradient-primary);">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL VIDEO PLAYER -->
     <div id="modalPlayer" class="modal">
         <div class="modal-content" style="max-width: 900px; padding: 1rem; background: #000;">
@@ -470,22 +516,38 @@
                 const reports = data.reports || [];
                 const activities = data.activities || []; // Agora pega da API
 
+                const activity_results = data.activity_results || [];
+
                 const email = localStorage.getItem('lastLoginEmail');
                 if (!email) { window.location.href = 'index.html'; return; }
 
                 // Disponibiliza activities globalmente para o quiz funcionar
                 window.globalActivities = activities;
 
-                renderProfile(email, students, reports, contents, activities, []);
-            } catch (e) { console.error(e); }
+                renderProfile(email, students, reports, contents, activities, activity_results);
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         loadData();
 
-        function renderProfile(email, students, reports, contents, activities, activity_results) {
+        // Variáveis globais
+        let currentStudent = null;
+        let globalActivityResults = [];
+        let globalActivities = [];
+        let globalContents = [];
+        let globalReports = [];
 
+        function renderProfile(email, students, reports, contents, activities, activity_results) {
             const student = students.find(s => s.email === email);
             if (!student) { window.location.href = 'index.html'; return; }
+
+            currentStudent = student;
+            globalActivities = activities;
+            globalActivityResults = activity_results;
+            globalContents = contents;
+            globalReports = reports;
 
             document.getElementById('studentNameDisplay').innerText = student.name;
             document.getElementById('avatarInitial').innerText = student.name.charAt(0);
@@ -495,17 +557,22 @@
 
             document.getElementById('paymentDateBig').innerText = `Todo dia ${student.payment || '?'}`;
 
-            const today = new Date().getDate();
-            const payDay = parseInt(student.payment) || 10;
             const statusTag = document.getElementById('paymentStatusTag');
 
-            if (today > payDay) {
-                statusTag.innerText = "PRÓXIMO CICLO";
-                statusTag.style.color = "var(--primary-purple-light)";
-            } else {
-                statusTag.innerText = "EM ABERTO";
-                statusTag.style.color = "#fbbf24";
-            }
+            // Usa o status definido pelo admin
+            const statusConfig = {
+                'isento': { text: 'ISENTO', color: '#60ffb0' },
+                'em_dia': { text: 'EM DIA', color: '#60ffb0' },
+                'em_atraso': { text: 'EM ATRASO', color: '#ff6060' },
+                'aguardando': { text: 'AGUARDANDO PAGAMENTO', color: '#fbbf24' }
+            };
+
+            const currentStatus = student.paymentStatus || 'aguardando';
+            const config = statusConfig[currentStatus] || statusConfig['aguardando'];
+
+            statusTag.innerText = config.text;
+            statusTag.style.color = config.color;
+
 
             // --- CONTEÚDOS (AULAS) ---
             const myContents = contents.filter(c => c.recipients.includes(String(student.id)) || c.recipients.includes(String(student._id)));
@@ -554,10 +621,26 @@
 
 
             // --- ATIVIDADES (QUIZ) ---
+            // --- ATIVIDADES (QUIZ) ---
             const myActivities = activities.filter(a => a.recipients.includes(String(student.id)) || a.recipients.includes(String(student._id)));
-            document.getElementById('actCount').innerText = `${myActivities.length} pendentes`;
+
+            // Separa entre Feitas e Pendentes
+            const doneActivityIds = activity_results
+                .filter(r => (r.studentId && (String(r.studentId) === String(student.id) || String(r.studentId) === String(student._id))) || r.student === student.name)
+                .map(r => r.activityId);
+
+            const pendingActivities = myActivities.filter(a => !doneActivityIds.includes(String(a._id || a.id)));
+            const doneActivities = myActivities.filter(a => doneActivityIds.includes(String(a._id || a.id)));
+
+            document.getElementById('actCount').innerText = `${pendingActivities.length} pendentes`;
+
             const actGrid = document.getElementById('studentActivityGrid');
-            actGrid.innerHTML = myActivities.length ? myActivities.map(a => `
+
+            let html = '';
+
+            // Renderiza Pendentes
+            if (pendingActivities.length > 0) {
+                html += pendingActivities.map(a => `
                  <div class="video-card-premium" style="padding: 0;">
                     <div style="padding: 2rem;">
                         <span class="report-date" style="color: var(--accent-pink); margin-bottom: 0.5rem; display: block;">${a.date}</span>
@@ -565,11 +648,100 @@
                         <p style="color: var(--text-secondary); margin-bottom: 2rem;">${a.questions.length} Questões</p>
                         <button class="btn btn-primary" onclick="startQuiz('${a._id || a.id}')" style="background: var(--accent-pink); border: none;">Iniciar Atividade</button>
                     </div>
-                </div>
-            `).join('') : '<p style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">Nenhuma atividade pendente.</p>';
+                </div>`).join('');
+            }
+
+            // Renderiza Concluídas
+            if (doneActivities.length > 0) {
+                html += doneActivities.map(a => {
+                    const result = activity_results.find(r => r.activityId === String(a._id || a.id) && ((r.studentId && String(r.studentId) === String(student._id)) || r.student === student.name));
+                    const score = result ? result.score : '?';
+                    const total = result ? result.total : '?';
+
+                    return `
+                     <div class="video-card-premium" style="padding: 0; opacity: 0.8; border: 1px solid var(--primary-purple);">
+                        <div style="padding: 2rem;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <span class="report-date" style="color: #60ffb0; margin-bottom: 0.5rem; display: block;">✅ Concluída</span>
+                                <span style="font-weight:800; color:white;">Nota: ${score}/${total}</span>
+                            </div>
+                            <h3 class="video-title" style="font-size: 1.5rem; color: var(--text-muted);">${a.title}</h3>
+                            <button class="btn btn-secondary" onclick="viewStudentResult('${a._id || a.id}')" style="width:100%; margin-top: 1.5rem;">Ver Resultado</button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            if (pendingActivities.length === 0 && doneActivities.length === 0) {
+                html = '<p style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">Nenhuma atividade atribuída.</p>';
+            }
+
+            actGrid.innerHTML = html;
 
             // Notificações (Simples)
+            // Agora passamos o número de ATIVIDADES PENDENTES, não o total.
+            // Para isso funcionar direito, precisamos ajustar a lógica do 'seen_a' para acompanhar pendentes.
+            // Se usarmos pendentes, quando terminar uma, o count cai. 
+            // Se cair, não tem problema. O problema é subir.
+            // Mas se eu passar 'pendingActivities.length', quando chegar uma nova, sobe.
+            // O checkNotifications compara (Current > Seen).
+            // Se eu tiver 1 pendente. Seen=1.
+            // Termino. Current=0. 
+            // Proxima vez: Current=0. Seen=1 (do storage).
+            // Se chegar nova: Current=1. 1 > 1 é Falso. Não notifica.
+
+            // A solução correta para "Notificar Novas" baseada em ID seria o ideal, mas complexo.
+            // Vamos manter a lógica de TOTAL, mas alterar a mensagem para "Nova Atividade Atribuída".
+            // E corrigir o BUG CRÍTICO do switchStudentTab lendo localStorage.
+
             checkNotifications(myContents.length, myReports.length, myActivities.length);
+        }
+
+        function viewStudentResult(actId) {
+            const result = globalActivityResults.find(r => String(r.activityId) === String(actId) && ((r.studentId && String(r.studentId) === String(currentStudent._id)) || r.student === currentStudent.name));
+
+            if (!result) return alert('Resultado não encontrado.');
+
+            let modal = document.getElementById('modalStudentResult');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalStudentResult';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
+                        <h2 id="stResTitle" style="margin-bottom:0.5rem;">Seu Desempenho</h2>
+                        <p id="stResScore" style="color:var(--text-secondary); margin-bottom:1.5rem; font-weight:bold;"></p>
+                        <div id="stResContent"></div>
+                        <div class="form-actions" style="margin-top:2rem;">
+                            <button class="btn btn-secondary" onclick="document.getElementById('modalStudentResult').style.display='none'">Fechar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            document.getElementById('stResTitle').innerText = result.activityTitle;
+            document.getElementById('stResScore').innerText = `Você acertou ${result.score} de ${result.total} questões`;
+
+            const contentDiv = document.getElementById('stResContent');
+            if (result.detailedAnswers && result.detailedAnswers.length) {
+                contentDiv.innerHTML = result.detailedAnswers.map((ans, i) => `
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${ans.isCorrect ? '#60ffb0' : '#ff6060'};">
+                        <p style="font-weight:bold; margin-bottom:0.5rem; font-size: 0.95rem;">${i + 1}. ${ans.question}</p>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.3rem;"><span style="opacity:0.6">Sua resposta:</span> <span style="color:${ans.isCorrect ? '#60ffb0' : '#ff6060'}">${ans.userAnswer}</span></p>
+                        ${!ans.isCorrect ? `<p style="font-size: 0.9rem;"><span style="opacity:0.6">Correta:</span> <span style="color:#60ffb0">${ans.correctAnswer}</span></p>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                contentDiv.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; opacity: 0.7;">
+                        <p style="margin-bottom: 1rem;">Detalhes indisponíveis para esta atividade.</p>
+                        <small>Apenas atividades recentes possuem gabarito detalhado.</small>
+                    </div>
+                `;
+            }
+
+            modal.style.display = 'flex';
         }
 
         function viewContent(link, type) {
@@ -592,9 +764,6 @@
             document.getElementById('videoPlayerIframe').src = "";
             document.getElementById('modalPlayer').style.display = 'none';
         }
-
-
-
 
         function showToast(title, msg, icon = '🔔', color = 'var(--primary-purple)') {
             const container = document.getElementById('toastContainer');
@@ -635,7 +804,7 @@
             }
             if (aLen > seen.a) {
                 document.getElementById('dot-atividades').style.display = 'block';
-                showToast('Nova Atividade!', `Você tem ${aLen - seen.a} nova(s) atividade(s) pendente(s).`, '🎯', 'var(--accent-blue)');
+                showToast('Nova Atividade!', `Você tem ${aLen - seen.a} nova(s) atividade(s) atribuída(s).`, '🎯', 'var(--accent-blue)');
                 hasNew = true;
             }
 
@@ -660,17 +829,17 @@
             const seen = JSON.parse(localStorage.getItem(storageKey) || '{"v":0, "r":0, "a":0}');
 
             if (tabId === 'estudos') {
-                const vLen = JSON.parse(localStorage.getItem('toque_contents') || '[]').filter(c => c.recipients.includes(document.getElementById('studentNameDisplay').innerText)).length;
+                const vLen = globalContents.filter(c => c.recipients.includes(String(currentStudent.id)) || c.recipients.includes(String(currentStudent._id))).length;
                 seen.v = vLen;
                 document.getElementById('dot-estudos').style.display = 'none';
             }
             if (tabId === 'analises') {
-                const rLen = JSON.parse(localStorage.getItem('toque_reports') || '[]').filter(r => r.student === document.getElementById('studentNameDisplay').innerText).length;
+                const rLen = globalReports.filter(r => (r.studentId && (String(r.studentId) === String(currentStudent.id) || String(r.studentId) === String(currentStudent._id))) || r.student === currentStudent.name).length;
                 seen.r = rLen;
                 document.getElementById('dot-analises').style.display = 'none';
             }
             if (tabId === 'atividades') {
-                const aLen = JSON.parse(localStorage.getItem('toque_activities') || '[]').filter(a => a.recipients.includes(document.getElementById('studentNameDisplay').innerText)).length;
+                const aLen = globalActivities.filter(a => a.recipients.includes(String(currentStudent.id)) || a.recipients.includes(String(currentStudent._id))).length;
                 seen.a = aLen;
                 document.getElementById('dot-atividades').style.display = 'none';
             }
@@ -682,6 +851,16 @@
         let quizAnswers = [];
 
         function startQuiz(id) {
+            // Verifica se já foi feita (Segurança extra)
+            const alreadyDone = globalActivityResults.some(r =>
+                String(r.activityId) === String(id) &&
+                ((r.studentId && (String(r.studentId) === String(currentStudent.id) || String(r.studentId) === String(currentStudent._id))) || r.student === currentStudent.name)
+            );
+
+            if (alreadyDone) {
+                return alert('Você já concluiu esta atividade!');
+            }
+
             const activities = window.globalActivities || [];
             currentQuiz = activities.find(a => String(a._id) === String(id) || String(a.id) === String(id));
 
@@ -698,17 +877,44 @@
         function showQuestion(idx) {
             const q = currentQuiz.questions[idx];
             const content = document.getElementById('quizContent');
+            const answer = quizAnswers[idx];
+            const isAnswered = answer !== null && answer !== undefined;
+            const isCorrect = isAnswered && answer === q.correct;
+
+            let feedbackHtml = '';
+            if (isAnswered) {
+                if (isCorrect) {
+                    const msgs = ["Na mosca!", "Tá indo bem demais!", "Mandou muito bem!", "Certíssimo!"];
+                    const msg = msgs[Math.floor(Math.random() * msgs.length)];
+                    feedbackHtml = `<div class="feedback-msg feedback-success">🎉 ${msg}</div>`;
+                } else {
+                    feedbackHtml = `<div class="feedback-msg feedback-error">❌ Boa sorte na próxima vez.</div>`;
+                }
+            }
+
             content.innerHTML = `
                 <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                     <strong style="color: var(--primary-purple-light);">Pergunta ${idx + 1} de ${currentQuiz.questions.length}</strong>
                     <small onclick="closeQuiz()" style="cursor:pointer; opacity: 0.5;">Cancelar</small>
                 </div>
                 <h3 style="margin-bottom: 2rem; font-size: 1.4rem;">${q.text}</h3>
-                <div class="q-option ${quizAnswers[idx] === 'a' ? 'selected' : ''}" onclick="selectOption(${idx}, 'a')"><span>A</span> ${q.a}</div>
-                <div class="q-option ${quizAnswers[idx] === 'b' ? 'selected' : ''}" onclick="selectOption(${idx}, 'b')"><span>B</span> ${q.b}</div>
-                <div class="q-option ${quizAnswers[idx] === 'c' ? 'selected' : ''}" onclick="selectOption(${idx}, 'c')"><span>C</span> ${q.c}</div>
-                <div class="q-option ${quizAnswers[idx] === 'd' ? 'selected' : ''}" onclick="selectOption(${idx}, 'd')"><span>D</span> ${q.d}</div>
                 
+                ${['a', 'b', 'c', 'd'].map(opt => {
+                let className = 'q-option';
+                if (isAnswered) {
+                    if (opt === answer) {
+                        className += isCorrect ? ' correct-answer' : ' wrong-answer';
+                    } else if (opt === q.correct && !isCorrect) {
+                        // Mostra a correta em verde se o aluno errou
+                        className += ' correct-answer';
+                    }
+                }
+
+                return `<div class="${className}" onclick="${!isAnswered ? `selectOption(${idx}, '${opt}')` : ''}">${opt.toUpperCase()}) ${q[opt]}</div>`;
+            }).join('')}
+                
+                ${feedbackHtml}
+
                 <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
                     ${idx > 0 ? `<button class="btn btn-secondary" onclick="showQuestion(${idx - 1})">Anterior</button>` : ''}
                     ${idx < currentQuiz.questions.length - 1 ?
@@ -719,44 +925,89 @@
             `;
         }
 
+        let pendingChoice = null; // { qIdx, opt }
+
         function selectOption(qIdx, opt) {
-            quizAnswers[qIdx] = opt;
-            showQuestion(qIdx);
+            // Se já respondeu, não faz nada
+            if (quizAnswers[qIdx]) return;
+
+            // Abre modal de confirmação customizado
+            pendingChoice = { qIdx, opt };
+            document.getElementById('modalConfirm').style.display = 'flex';
         }
 
-        function finishQuiz() {
+        function confirmChoice(confirmed) {
+            document.getElementById('modalConfirm').style.display = 'none';
+
+            if (confirmed && pendingChoice) {
+                const { qIdx, opt } = pendingChoice;
+                quizAnswers[qIdx] = opt;
+                showQuestion(qIdx);
+                // Avançar automaticamente após breve delay se correto (opcional)
+            }
+            // Reset pending
+            pendingChoice = null;
+        }
+
+        async function finishQuiz() {
             if (quizAnswers.includes(null)) return alert('Por favor, responda todas as questões.');
 
             let score = 0;
+            const detailedAnswers = [];
+
             currentQuiz.questions.forEach((q, i) => {
-                if (q.correct === quizAnswers[i]) score++;
+                const isRight = q.correct === quizAnswers[i];
+                if (isRight) score++;
+
+                detailedAnswers.push({
+                    question: q.text,
+                    userAnswer: `${quizAnswers[i].toUpperCase()}) ${q[quizAnswers[i]]}`,
+                    correctAnswer: `${q.correct.toUpperCase()}) ${q[q.correct]}`,
+                    isCorrect: isRight
+                });
             });
 
-            const results = JSON.parse(localStorage.getItem('toque_activity_results') || '[]');
-            const email = localStorage.getItem('lastLoginEmail');
-            const students = JSON.parse(localStorage.getItem('toque_students') || '[]');
-            const student = students.find(s => s.email === email);
+            if (!currentStudent) return alert("Erro: Aluno não identificado. Recarregue a página.");
 
-            results.push({
-                student: student.name,
-                activityId: currentQuiz.id,
+            const payload = {
+                student: currentStudent.name,
+                studentId: currentStudent._id || currentStudent.id,
+                activityId: currentQuiz._id || currentQuiz.id,
                 activityTitle: currentQuiz.title,
                 score,
                 total: currentQuiz.questions.length,
-                date: new Date().toLocaleDateString('pt-BR')
-            });
-
-            localStorage.setItem('toque_activity_results', JSON.stringify(results));
+                date: new Date().toLocaleDateString('pt-BR'),
+                detailedAnswers // Envia detalhes
+            };
 
             const content = document.getElementById('quizContent');
-            content.innerHTML = `
-                <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1.5rem;">🎉</div>
-                    <h2 style="margin-bottom: 1rem;">Atividade Concluída!</h2>
-                    <p style="font-size: 1.4rem; color: var(--primary-purple-light); font-weight: 800; margin-bottom: 2rem;">Você acertou ${score} de ${currentQuiz.questions.length}</p>
-                    <button class="btn btn-primary" onclick="location.reload()">Voltar ao Portal</button>
-                </div>
-            `;
+            content.innerHTML = '<div style="text-align:center; padding:2rem;"><h3>Salvando resultado...</h3></div>';
+
+            try {
+                const res = await fetch(`${API_URL}/activity_results`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🎉</div>
+                            <h2 style="margin-bottom: 1rem;">Atividade Concluída!</h2>
+                            <p style="font-size: 1.4rem; color: var(--primary-purple-light); font-weight: 800; margin-bottom: 2rem;">Você acertou ${score} de ${currentQuiz.questions.length}</p>
+                            <button class="btn btn-primary" onclick="location.reload()">Voltar ao Portal</button>
+                        </div>
+                    `;
+                } else {
+                    const err = await res.json();
+                    alert('Erro ao salvar resultado: ' + err.error);
+                    location.reload(); // Fallback
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Erro', 'Erro de conexão ao salvar resultado.', 'error', '❌');
+            }
         }
 
         function closeQuiz() {
