@@ -559,26 +559,28 @@
 
             // Atualiza o texto da data de pagamento
             const paymentDateElement = document.getElementById('paymentDateBig');
-            if (currentStatus === 'isento') {
-                paymentDateElement.innerText = 'Isento';
-            } else {
-                paymentDateElement.innerText = `Todo dia ${student.payment || '?'}`;
-            }
-
             const statusTag = document.getElementById('paymentStatusTag');
 
-            // Usa o status definido pelo admin
-            const statusConfig = {
-                'isento': { text: 'ISENTO', color: '#60ffb0' },
-                'em_dia': { text: 'EM DIA', color: '#60ffb0' },
-                'em_atraso': { text: 'EM ATRASO', color: '#ff6060' },
-                'aguardando': { text: 'AGUARDANDO PAGAMENTO', color: '#fbbf24' }
-            };
+            if (currentStatus === 'isento') {
+                paymentDateElement.innerText = 'Isento';
+                // Oculta o status tag para não duplicar "Isento"
+                statusTag.style.display = 'none';
+            } else {
+                paymentDateElement.innerText = `Todo dia ${student.payment || '?'}`;
+                statusTag.style.display = 'block';
 
-            const config = statusConfig[currentStatus] || statusConfig['aguardando'];
+                // Usa o status definido pelo admin
+                const statusConfig = {
+                    'em_dia': { text: 'EM DIA', color: '#60ffb0' },
+                    'em_atraso': { text: 'EM ATRASO', color: '#ff6060' },
+                    'aguardando': { text: 'AGUARDANDO PAGAMENTO', color: '#fbbf24' }
+                };
 
-            statusTag.innerText = config.text;
-            statusTag.style.color = config.color;
+                const config = statusConfig[currentStatus] || statusConfig['aguardando'];
+
+                statusTag.innerText = config.text;
+                statusTag.style.color = config.color;
+            }
 
 
             // --- CONTEÚDOS (AULAS) ---
