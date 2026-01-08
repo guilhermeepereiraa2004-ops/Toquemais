@@ -763,7 +763,7 @@
                             </div>
                         </td>
                         <td><span class="badge badge-${s.level}">${levelMap[s.level] || s.level}</span></td>
-                        <td style="color: var(--text-secondary); font-weight: 700;">Todo dia ${s.payment || '?'}</td>
+                        <td style="color: var(--text-secondary); font-weight: 700;">${s.paymentStatus === 'isento' ? 'Isento' : `Todo dia ${s.payment || '?'}`}</td>
                         <td style="display: flex; justify-content: center; gap: 0.8rem;">
                         <td style="display: flex; justify-content: center; gap: 0.8rem;">
                             <button type="button" class="circle-btn edit-btn" data-id="${s._id || s.id}">✏️</button>
@@ -797,7 +797,7 @@
                 const currentStatus = s.paymentStatus || 'aguardando';
                 return `<tr>
                             <td style="text-align: left;"><strong>${s.name}</strong></td>
-                            <td style="text-align: center; color: var(--primary-purple-light); font-weight: 800;">Dia ${s.payment}</td>
+                            <td style="text-align: center; color: var(--primary-purple-light); font-weight: 800;">${currentStatus === 'isento' ? 'Isento' : `Dia ${s.payment}`}</td>
                             <td style="text-align: center;">
                                 <select class="form-select" style="width: auto; padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid ${statusColors[currentStatus]}; color: ${statusColors[currentStatus]}; font-weight: 700;" onchange="updatePaymentStatus('${s._id || s.id}', this.value)">
                                     <option value="isento" ${currentStatus === 'isento' ? 'selected' : ''}>Isento</option>

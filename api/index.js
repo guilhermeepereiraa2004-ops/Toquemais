@@ -99,6 +99,7 @@ app.post('/api/students', async (req, res) => {
 
 app.put('/api/students/:id', async (req, res) => {
     try {
+        await connectDB(); // Garantir conexão ativa antes de atualizar
         const { id } = req.params;
         const updated = await Student.findOneAndUpdate({ $or: [{ id: id }, { _id: id }] }, req.body, { new: true });
         res.json(updated);

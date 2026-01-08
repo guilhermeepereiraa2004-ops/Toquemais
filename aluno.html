@@ -555,7 +555,15 @@
             const levelMap = { 'beginner': 'Iniciante', 'intermediate': 'Intermediário', 'advanced': 'Avançado', 'master': 'Master' };
             document.getElementById('studentLevelDisplay').innerText = levelMap[student.level] || student.level;
 
-            document.getElementById('paymentDateBig').innerText = `Todo dia ${student.payment || '?'}`;
+            const currentStatus = student.paymentStatus || 'aguardando';
+
+            // Atualiza o texto da data de pagamento
+            const paymentDateElement = document.getElementById('paymentDateBig');
+            if (currentStatus === 'isento') {
+                paymentDateElement.innerText = 'Isento';
+            } else {
+                paymentDateElement.innerText = `Todo dia ${student.payment || '?'}`;
+            }
 
             const statusTag = document.getElementById('paymentStatusTag');
 
@@ -567,7 +575,6 @@
                 'aguardando': { text: 'AGUARDANDO PAGAMENTO', color: '#fbbf24' }
             };
 
-            const currentStatus = student.paymentStatus || 'aguardando';
             const config = statusConfig[currentStatus] || statusConfig['aguardando'];
 
             statusTag.innerText = config.text;
