@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toquemais | Painel Administrativo</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23a760ff;stop-opacity:1%22 /><stop offset=%22100%25%22 style=%22stop-color:%23ec4899;stop-opacity:1%22 /></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22 /><text y=%22.9em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2270%22 font-family=%22sans-serif%22 font-weight=%22800%22 fill=%22white%22>T+</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Toast Styles */
+        #toastContainer {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 11000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(18, 18, 20, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-left: 4px solid var(--primary-purple);
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            min-width: 300px;
+            max-width: 400px;
+            transform: translateX(100%);
+            opacity: 0;
+            animation: slideIn 0.4s ease forwards;
+            pointer-events: auto;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast-icon {
+            font-size: 1.4rem;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .toast-msg {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, rgba(167, 96, 255, 0.06), transparent 600px),
+                radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.04), transparent 600px),
+                var(--bg-dark);
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.6rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-purple);
+            box-shadow: 0 20px 40px rgba(167, 96, 255, 0.12);
+        }
+
+        .stat-value {
+            font-size: 2.6rem;
+            font-weight: 800;
+            font-family: var(--font-display);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(167, 96, 255, 0.15);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* Enhanced Tabs */
+        .admin-tabs {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.6rem;
+            border-radius: 20px;
+            display: inline-flex;
+            gap: 0.4rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab-btn {
+            border-radius: 14px;
+            padding: 0.9rem 2.2rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 700;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        .tab-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 8px 16px rgba(167, 96, 255, 0.3);
+        }
+
+        /* Modern Table */
+        .premium-table-wrapper {
+            background: var(--bg-card);
+            border-radius: 30px;
+            padding: 1.2rem;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        .premium-table th {
+            padding: 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .premium-table tr td {
+            background: rgba(255, 255, 255, 0.015);
+            padding: 1.6rem;
+            transition: all 0.3s;
+            border-top: 1px solid transparent;
+            border-bottom: 1px solid transparent;
+            text-align: center;
+        }
+
+        .premium-table tr td:first-child {
+            border-radius: 20px 0 0 20px;
+            border-left: 1px solid transparent;
+            text-align: left;
+        }
+
+        .premium-table tr td:last-child {
+            border-radius: 0 20px 20px 0;
+            border-right: 1px solid transparent;
+        }
+
+        .premium-table tr:hover td {
+            background: rgba(167, 96, 255, 0.04);
+            border-color: rgba(167, 96, 255, 0.1);
+        }
+
+        /* Action Buttons */
+        .action-btn-group {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .circle-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.2rem;
+        }
+
+        .circle-btn:hover {
+            background: var(--primary-purple);
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+            border-color: var(--primary-purple-light);
+            box-shadow: 0 0 15px rgba(167, 96, 255, 0.3);
+        }
+
+        .circle-btn.delete:hover {
+            background: var(--accent-pink);
+            color: white;
+            border-color: var(--accent-pink);
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        /* Custom Section Titles */
+        .section-header {
+            margin-bottom: 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="top-logo">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo-content" style="cursor: pointer; display: flex; align-items: center;"
+                onclick="window.location.href='index.html'">
+                <h1 class="logo-title">Toque<span class="logo-plus">+</span></h1>
+            </div>
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'"
+                style="width: auto; padding: 0.7rem 1.8rem; font-size: 0.85rem; border-radius: 14px;">Logout</button>
+        </div>
+        <p class="logo-subtitle">Portal da Administração</p>
+    </header>
+
+    <div id="toastContainer"></div>
+
+    <div class="container admin-dashboard">
+        <div class="section-header">
+            <div>
+                <h1
+                    style="font-family: var(--font-display); font-size: 3.2rem; margin-bottom: 0.5rem; letter-spacing: -1.5px;">
+                    Painel Geral</h1>
+                <p style="color: var(--text-secondary); font-size: 1.15rem; font-weight: 500;">Gestão de alunos,
+                    conteúdos e performance.</p>
+            </div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="openModal('modalAddStudent')"
+                    style="width: auto; padding: 0.9rem 2.5rem; border-radius: 16px;">+ Novo Aluno</button>
+                <button class="btn btn-secondary" onclick="openModal('modalUpload')"
+                    style="width: auto; border-radius: 16px;">+ Novo Conteúdo</button>
+                <button class="btn btn-secondary" onclick="openModal('modalCreateActivity')"
+                    style="width: auto; border-color: var(--primary-purple-light); border-radius: 16px;">+ Nova
+                    Atividade</button>
+                <button class="btn btn-secondary" onclick="openModal('modalAddReport')"
+                    style="width: auto; border-color: var(--accent-pink); color: var(--accent-pink); border-radius: 16px;">+
+                    Feedback</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotalStudents">0</div>
+                <div class="stat-label">Alunos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statTotalContent">0</div>
+                <div class="stat-label">Materiais Enviados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statTotalReports">0</div>
+                <div class="stat-label">Feedbacks do Professor</div>
+            </div>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('students', this)">Estudantes</button>
+            <button class="tab-btn" onclick="switchTab('content', this)">Materiais</button>
+            <button class="tab-btn" onclick="switchTab('activities', this)">Atividades</button>
+            <button class="tab-btn" onclick="switchTab('finance', this)">Financeiro</button>
+            <button class="tab-btn" onclick="switchTab('reports', this)">Histórico</button>
+        </div>
+
+        <!-- ABA ALUNOS -->
+        <div id="tab-students" class="tab-content active">
+            <div class="premium-table-wrapper">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Candidato</th>
+                            <th style="text-align: center;">Nível Musical</th>
+                            <th style="text-align: center;">Dia de Vencimento</th>
+                            <th style="text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Gerado via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Outras abas simplificadas para manter o core funcional -->
+        <div id="tab-content" class="tab-content">
+            <div style="display: grid; gap: 1.5rem;" id="contentList"></div>
+        </div>
+
+        <div id="tab-activities" class="tab-content">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <div id="activityList"></div>
+                <div>
+                    <h3 style="margin-bottom: 1.5rem; font-family: var(--font-display);">Resultados dos Alunos</h3>
+                    <div id="activityResultsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-finance" class="tab-content">
+            <div class="premium-table-wrapper">
+                <div id="financeList"></div>
+            </div>
+        </div>
+
+        <div id="tab-reports" class="tab-content">
+            <div style="display: grid; gap: 1.5rem;" id="reportsList"></div>
+        </div>
+    </div>
+
+    <!-- MODALS (Restored logic) -->
+    <div id="modalAddStudent" class="modal">
+        <div class="modal-content">
+            <h2 style="font-family: var(--font-display); margin-bottom: 2rem; color: var(--text-primary);">Cadastrar
+                Novo Integrante</h2>
+            <form onsubmit="addStudent(event)">
+                <div class="form-group"><label>Nome Completo</label><input type="text" class="form-input"
+                        id="newStudentName" placeholder="Identificação" required></div>
+                <div class="form-group"><label>E-mail Corporativo</label><input type="email" class="form-input"
+                        id="newStudentEmail" placeholder="usuario@email.com" required></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label>Graduação Musical</label>
+                        <select class="form-select" id="newStudentLevel">
+                            <option value="beginner">Iniciante</option>
+                            <option value="intermediate">Intermediário</option>
+                            <option value="advanced">Avançado</option>
+                            <option value="master">Master</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ciclo de Pagamento</label>
+                        <input type="number" class="form-input" id="newStudentPayment" min="1" max="31"
+                            placeholder="Dia (1-31)" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Senha de Acesso</label>
+                    <input type="password" class="form-input" id="newStudentPass" placeholder="Definição de acesso"
+                        required>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('modalAddStudent')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Confirmar Cadastro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalUpload" class="modal">
+        <div class="modal-content">
+            <h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Disponibilizar Conteúdo</h2>
+            <form onsubmit="handleUpload(event)">
+                <div class="form-group"><label>Título da Aula</label><input type="text" class="form-input"
+                        id="uploadTitle" placeholder="Ex: Harmonia Funcional" required></div>
+                <div class="form-group"><label>Plano de Estudo</label><textarea class="form-input" id="uploadDesc"
+                        style="min-height: 120px;" placeholder="Instruções e metodologias..." required></textarea></div>
+
+                <div class="form-group">
+                    <label>Tipo de Material</label>
+                    <select class="form-select" id="uploadType" onchange="toggleLinkPlaceholder(this.value)">
+                        <option value="video">Vídeo (YouTube)</option>
+                        <option value="document">Documento (Google Drive / Link)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Link do Material</label>
+                    <input type="url" class="form-input" id="uploadLink"
+                        placeholder="Cole aqui o link do vídeo (YouTube) ou documento" required>
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">* Use links "Não Listados"
+                        do YouTube para vídeos privados.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Destinatários Ativos:</label>
+                    <div id="uploadStudentList"
+                        style="max-height: 180px; overflow-y: auto; background: var(--bg-input); padding: 1.2rem; border-radius: 16px; border: 1px solid var(--glass-border);">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modalUpload')">Voltar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Liberar Material</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR ATIVIDADE -->
+    <div id="modalCreateActivity" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Configurar Quiz Interativo</h2>
+            <form onsubmit="createActivity(event)">
+                <div class="form-group"><label>Título da Atividade</label><input type="text" id="actTitle"
+                        class="form-input" required></div>
+                <div id="questionsContainer"
+                    style="max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem; background: var(--bg-input); padding: 1.5rem; border-radius: 20px;">
+                    <!-- Perguntas -->
+                </div>
+                <button type="button" class="btn btn-secondary"
+                    style="width: auto; margin-bottom: 2rem; font-size: 0.8rem;" onclick="addQuestionField()">+
+                    Adicionar Pergunta</button>
+
+                <div class="form-group">
+                    <label>Liberar para Alunos:</label>
+                    <div id="actStudentList"
+                        style="max-height: 120px; overflow-y: auto; background: var(--bg-input); padding: 1rem; border-radius: 16px;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('modalCreateActivity')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Publicar Atividade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR ALUNO -->
+    <div id="modalEditStudent" class="modal">
+        <div class="modal-content">
+            <h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Configurações de Aluno</h2>
+            <form onsubmit="handleEditStudent(event)">
+                <input type="hidden" id="editStudentId">
+                <div class="form-group"><label>Nome do Aluno</label><input type="text" id="editStudentName"
+                        class="form-input" disabled></div>
+                <div class="form-group"><label>E-mail</label><input type="email" id="editStudentEmail"
+                        class="form-input" required></div>
+                <div class="form-group"><label>Senha de Acesso</label><input type="text" id="editStudentPass"
+                        class="form-input" required></div>
+                <div class="form-group">
+                    <label>Nível Musical</label>
+                    <select id="editStudentLevel" class="form-select">
+                        <option value="beginner">Iniciante</option>
+                        <option value="intermediate">Intermediário</option>
+                        <option value="advanced">Avançado</option>
+                        <option value="master">Master</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dia do Pagamento</label>
+                    <input type="number" id="editStudentPayment" class="form-input" min="1" max="31" required>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('modalEditStudent')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ENVIAR RELATÓRIO / FEEDBACK -->
+    <div id="modalAddReport" class="modal">
+        <div class="modal-content">
+            <h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Registrar Feedback Profissional</h2>
+            <form onsubmit="addReport(event)">
+                <div class="form-group">
+                    <label>Escolha o Aluno:</label>
+                    <div id="reportStudentList"
+                        style="max-height: 180px; overflow-y: auto; background: var(--bg-input); padding: 1.2rem; border-radius: 16px; border: 1px solid var(--glass-border);">
+                        <!-- Checkboxes via JS -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Acompanhamento de Evolução</label>
+                    <textarea class="form-input" id="reportFeedback" style="min-height: 150px;"
+                        placeholder="Descreva os pontos de melhoria e elogios..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('modalAddReport')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="background: var(--accent-pink); color: white; border-radius: 16px; flex: 2; border: none;">Publicar
+                        Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL VISUALIZAR ATIVIDADE -->
+    <div id="modalViewActivity" class="modal">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family: var(--font-display); margin: 0;" id="viewActTitle">Detalhes da Atividade
+                </h2>
+                <button type="button" class="circle-btn" onclick="closeModal('modalViewActivity')"
+                    style="width: 32px; height: 32px; font-size: 0.8rem;">✕</button>
+            </div>
+
+            <form onsubmit="handleActivityUpdate(event)">
+                <input type="hidden" id="viewActId">
+
+                <h3 style="margin-bottom: 1rem; color: var(--primary-purple-light);">Gabarito</h3>
+                <div id="viewActQuestions"
+                    style="margin-bottom: 2rem; background: var(--bg-input); padding: 1.5rem; border-radius: 20px;">
+                    <!-- Perguntas Renderizadas Aqui -->
+                </div>
+
+                <div class="form-group">
+                    <label>Atribuir aos Alunos:</label>
+                    <div class="card" style="padding: 0.5rem; background: var(--bg-input);">
+                        <label
+                            style="display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-bottom: 1px solid var(--glass-border); cursor: pointer;">
+                            <input type="checkbox" id="checkAllStudents" onchange="toggleAllActivityStudents(this)">
+                            <span style="font-weight: bold;">Selecionar Todos</span>
+                        </label>
+                        <div id="viewActStudentList" style="max-height: 200px; overflow-y: auto; padding-top: 0.5rem;">
+                            <!-- Lista de alunos -->
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('modalViewActivity')">Fechar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS MODIFICADOS PARA API -->
+    <script>
+        const API_URL = '/api';
+
+        let students = [], reports = [], contents = [], activities = [], activity_results = [];
+
+        // Helper de Toast
+        function showToast(title, msg, type = 'success', icon = '✅') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            if (type === 'error') {
+                toast.style.borderLeftColor = '#ff4b4b';
+                icon = '❌';
+            }
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${msg}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        // --- CARREGAMENTO INICIAL (SYNC COM SERVIDOR) ---
+        async function loadData() {
+            try {
+                // Em produção na Vercel, o backend já retorna tudo em /api/data
+                const res = await fetch(`${API_URL}/data`);
+                const data = await res.json();
+
+                students = data.students || [];
+                reports = data.reports || [];
+                contents = data.contents || [];
+                activities = data.activities || [];
+                activity_results = data.activity_results || [];
+
+                renderStudents();
+                updateStats();
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+                showToast("Erro", "Falha ao conectar com o servidor.", 'error');
+            }
+        }
+
+        loadData();
+
+        function toggleLinkPlaceholder(type) {
+            const input = document.getElementById('uploadLink');
+            if (type === 'video') input.placeholder = 'https://youtube.com/watch?v=...';
+            else input.placeholder = 'https://drive.google.com/file/...';
+        }
+
+        // --- FUNÇÕES CRUD (AGORA CHAMANDO API) ---
+
+        async function addStudent(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('newStudentName').value,
+                email: document.getElementById('newStudentEmail').value.toLowerCase(),
+                level: document.getElementById('newStudentLevel').value,
+                payment: document.getElementById('newStudentPayment').value,
+                password: document.getElementById('newStudentPass').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/students`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Sucesso', 'Aluno cadastrado com sucesso!');
+                    closeModal('modalAddStudent');
+                    loadData(); // Recarrega tudo
+                } else {
+                    showToast('Erro', data.error || 'Erro ao cadastrar.', 'error');
+                }
+            } catch (err) { console.error(err); showToast('Erro', 'Falha no servidor.', 'error'); }
+        }
+
+        async function handleUpload(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Salvando...';
+            btn.disabled = true;
+
+            const selectedIds = Array.from(document.querySelectorAll('#uploadStudentList input:checked')).map(cb => cb.value);
+
+            if (!selectedIds.length) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return showToast('Atenção', 'Selecione os destinatários.', 'error');
+            }
+
+            const payload = {
+                title: document.getElementById('uploadTitle').value,
+                desc: document.getElementById('uploadDesc').value,
+                link: document.getElementById('uploadLink').value,
+                type: document.getElementById('uploadType').value,
+                recipients: selectedIds
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/content`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast('Sucesso', 'Conteúdo disponibilizado!');
+                    closeModal('modalUpload');
+                    loadData();
+                } else {
+                    const err = await res.json();
+                    showToast('Erro', err.error || 'Erro ao salvar conteúdo.', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Erro', 'Falha na conexão.', 'error');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteStudent(id) {
+            if (!confirm('Remover aluno?')) return;
+            await fetch(`${API_URL}/students/${id}`, { method: 'DELETE' });
+            loadData();
+        }
+
+        async function deleteContent(id) {
+            if (!confirm('Apagar conteúdo?')) return;
+            await fetch(`${API_URL}/content/${id}`, { method: 'DELETE' });
+            loadData();
+        }
+
+        // (Mantive as funções de UI como switchTab, renderTables iguais, 
+        // apenas ajustando onde elas liam 'localStorage' para ler as variáveis globais carregadas da API)
+
+        function updateStats() {
+            document.getElementById('statTotalStudents').innerText = students.length;
+            document.getElementById('statTotalContent').innerText = contents.length;
+            document.getElementById('statTotalReports').innerText = reports.length;
+        }
+
+        function renderStudents() {
+            const table = document.getElementById('studentTableBody');
+            table.innerHTML = '';
+
+            const levelMap = {
+                'beginner': 'Iniciante',
+                'intermediate': 'Intermediário',
+                'advanced': 'Avançado',
+                'master': 'Master'
+            };
+
+            students.forEach(s => {
+                table.innerHTML += `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 44px; height: 44px; border-radius: 14px; background: var(--gradient-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; box-shadow: var(--shadow-glow);">${s.name.charAt(0)}</div>
+                                <div><strong style="color: var(--text-primary); font-size: 1.05rem;">${s.name}</strong><br><small style="color: var(--text-muted); font-weight: 500;">${s.email}</small></div>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-${s.level}">${levelMap[s.level] || s.level}</span></td>
+                        <td style="color: var(--text-secondary); font-weight: 700;">${s.paymentStatus === 'isento' ? 'Isento' : `Todo dia ${s.payment || '?'}`}</td>
+                        <td style="display: flex; justify-content: center; gap: 0.8rem;">
+                        <td style="display: flex; justify-content: center; gap: 0.8rem;">
+                            <button type="button" class="circle-btn edit-btn" data-id="${s._id || s.id}">✏️</button>
+                            <button type="button" class="circle-btn delete-btn" data-id="${s._id || s.id}">🗑️</button>
+                        </td>
+                        </td>
+                    </tr>
+                `;
+            });
+            renderFinance();
+        }
+
+        function renderFinance() {
+            const finance = document.getElementById('financeList');
+            finance.innerHTML = `
+                <table class="premium-table">
+                    <thead><tr><th style="text-align: left;">Integrante</th><th>Vencimento</th><th style="text-align: center;">Status</th><th style="text-align: center;">Notificação</th></tr></thead>
+                    <tbody>${students.map(s => {
+                const statusColors = {
+                    'isento': '#60ffb0',
+                    'em_dia': '#60ffb0',
+                    'em_atraso': '#ff6060',
+                    'aguardando': '#fbbf24'
+                };
+                const statusLabels = {
+                    'isento': 'Isento',
+                    'em_dia': 'Em dia',
+                    'em_atraso': 'Em atraso',
+                    'aguardando': 'Aguardando pagamento'
+                };
+                const currentStatus = s.paymentStatus || 'aguardando';
+                return `<tr>
+                            <td style="text-align: left;"><strong>${s.name}</strong></td>
+                            <td style="text-align: center; color: var(--primary-purple-light); font-weight: 800;">${currentStatus === 'isento' ? 'Isento' : `Dia ${s.payment}`}</td>
+                            <td style="text-align: center;">
+                                <select class="form-select" style="width: auto; padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid ${statusColors[currentStatus]}; color: ${statusColors[currentStatus]}; font-weight: 700;" onchange="updatePaymentStatus('${s._id || s.id}', this.value)">
+                                    <option value="isento" ${currentStatus === 'isento' ? 'selected' : ''}>Isento</option>
+                                    <option value="em_dia" ${currentStatus === 'em_dia' ? 'selected' : ''}>Em dia</option>
+                                    <option value="em_atraso" ${currentStatus === 'em_atraso' ? 'selected' : ''}>Em atraso</option>
+                                    <option value="aguardando" ${currentStatus === 'aguardando' ? 'selected' : ''}>Aguardando pagamento</option>
+                                </select>
+                            </td>
+                            <td style="text-align: center;"><button class="btn btn-secondary" style="width: auto; padding: 0.5rem 1.5rem; border-radius: 12px; font-size: 0.8rem;" onclick="alert('Lembrete enviado para ${s.email}')">🔔 Lembrar</button></td>
+                        </tr>`;
+            }).join('')}</tbody>
+                </table>
+            `;
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            btn.classList.add('active');
+            if (tabId === 'content') renderContents();
+            if (tabId === 'activities') renderActivities();
+            if (tabId === 'reports') renderReports();
+        }
+
+        function renderActivities() {
+            const list = document.getElementById('activityList');
+            list.innerHTML = activities.length ? activities.map(a => `
+                <div class="card activity-card-item" data-activity-id="${String(a._id || a.id)}" style="border-left: 6px solid var(--primary-purple-light); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>${a.title}</strong>
+                        <small>${a.date}</small>
+                    </div>
+                    <p style="margin-top: 1rem; opacity: 0.8;">${a.questions.length} Questões publicadas</p>
+                    <div style="display:flex; justify-content:space-between; margin-top:1rem; align-items:center;">
+                         <small style="opacity:0.6;">${a.recipients?.length || 0} Aluno(s)</small>
+                         <button class="btn btn-secondary delete-act-btn" onclick="event.stopPropagation(); deleteActivity('${a._id || a.id}')" style="width: auto; padding: 0.4rem 1rem; font-size: 0.7rem; border-color: var(--accent-pink); color: var(--accent-pink);">Remover</button>
+                    </div>
+                </div>
+            `).join('') : '<p style="opacity:0.5; text-align:center; padding: 3rem; border: 1px dashed var(--glass-border); border-radius: 20px;">Nenhuma atividade ativa.</p>';
+
+            const resList = document.getElementById('activityResultsList');
+            resList.innerHTML = activity_results.length ? activity_results.map(r => `
+                <div class="card result-card-item" style="padding: 1rem; font-size: 0.9rem; margin-bottom: 0.8rem; background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s;" onclick="showResultDetails('${r._id || r.id}')" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: var(--primary-purple-light);">${r.student}</strong>
+                            <span style="font-weight: 800;">${r.score}/${r.total}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.6;">Atividade: ${r.activityTitle}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.6;">Data: ${r.date}</div>
+                    </div>
+                    <button class="circle-btn" style="border-radius: 12px; font-size: 0.8rem; height: 32px; width: 32px; flex-shrink: 0; margin-left: 1rem;" onclick="event.stopPropagation(); deleteResult('${r._id}')">🗑️</button>
+                </div>
+            `).join('') : '<p style="opacity:0.5; font-size:0.8rem;">Nenhuma resposta enviada.</p>';
+        }
+
+        function renderContents() {
+            const list = document.getElementById('contentList');
+            list.innerHTML = contents.length ? contents.map(c => `
+                <div class="card" style="border-left: 6px solid var(--primary-purple); display: flex; gap: 2rem; align-items: center; background: rgba(255,255,255,0.01);">
+                    <div style="width: 70px; height: 70px; background: var(--bg-input); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid var(--glass-border);">${c.type === 'video' ? '▶️' : '📄'}</div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;"><strong style="font-size: 1.25rem;">${c.title}</strong><small style="color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${c.date}</small></div>
+                        <p style="margin: 0.6rem 0; font-size: 1rem; opacity: 0.8;">${c.desc}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <small style="color: var(--primary-purple-light); font-weight: 700;">👤 PARA: ${c.recipients.map(id => students.find(s => s._id === id)?.name || 'N/A').join(', ')}</small>
+                            <button class="circle-btn" style="height: 32px; width: 32px; font-size: 0.8rem;" onclick="deleteContent('${c._id}')">🗑️</button>
+                        </div>
+                    </div>
+                </div>`).join('') : '<div style="padding: 5rem; text-align: center; border: 2px dashed var(--glass-border); border-radius: 30px; opacity: 0.5;">Fila de materiais vazia.</div>';
+        }
+
+        function renderReports() {
+            const list = document.getElementById('reportsList');
+            list.innerHTML = reports.length ? reports.map(r => `
+                <div class="card" style="border-left: 6px solid var(--accent-pink); background: rgba(255,255,255,0.015); position: relative;">
+                    <button class="circle-btn" style="position: absolute; top: 1rem; right: 1rem; height: 32px; width: 32px; font-size: 0.8rem;" onclick="deleteReport('${r._id}')">🗑️</button>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-right: 3rem;">
+                        <strong>Evolução de: <span style="color: var(--accent-pink);">${r.student}</span></strong>
+                        <small style="color: var(--text-muted); font-weight: 800;">(${r.date})</small>
+                    </div>
+                    <p style="font-size: 1.1rem; line-height: 1.8; opacity: 0.9; font-style: italic;">"${r.feedback}"</p>
+                </div>`).join('') : '<div style="padding: 5rem; text-align: center; border: 2px dashed var(--glass-border); border-radius: 30px; opacity: 0.5;">Nenhum feedback emitido.</div>';
+        }
+
+        function openModal(id) {
+            console.log('Tentando abrir modal:', id);
+            const modal = document.getElementById(id);
+            if (!modal) {
+                console.error('Modal não encontrado:', id);
+                return;
+            }
+            modal.style.display = 'flex';
+            modal.style.zIndex = '9999'; // Forçar topo
+
+            if (id === 'modalUpload' || id === 'modalAddReport' || id === 'modalCreateActivity') {
+                const containerId = id === 'modalUpload' ? 'uploadStudentList' : (id === 'modalAddReport' ? 'reportStudentList' : 'actStudentList');
+                const list = document.getElementById(containerId);
+                if (list) {
+                    list.innerHTML = students.map(s => `
+                        <label style="display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer;">
+                            <input type="checkbox" name="studentSelect" value="${s._id || s.id}"> 
+                            <span>${s.name}</span>
+                        </label>
+                    `).join('') || '<p style="padding: 1rem; opacity: 0.5;">Nenhum aluno no sistema.</p>';
+                }
+
+                if (id === 'modalCreateActivity') {
+                    const qContainer = document.getElementById('questionsContainer');
+                    if (qContainer) {
+                        qContainer.innerHTML = '';
+                        addQuestionField();
+                    }
+                }
+            }
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function addQuestionField() {
+            const container = document.getElementById('questionsContainer');
+            const qIdx = container.children.length;
+            const qDiv = document.createElement('div');
+            qDiv.className = 'q-item';
+            qDiv.style.marginBottom = '2rem';
+            qDiv.style.borderBottom = '1px solid var(--glass-border)';
+            qDiv.style.paddingBottom = '1.5rem';
+            qDiv.innerHTML = `
+                <div class="form-group"><label>Pergunta ${qIdx + 1}</label><input type="text" class="form-input q-text" placeholder="Qual o conceito..." required></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+                    <div class="form-group"><label>A)</label><input type="text" class="form-input q-a" required></div>
+                    <div class="form-group"><label>B)</label><input type="text" class="form-input q-b" required></div>
+                    <div class="form-group"><label>C)</label><input type="text" class="form-input q-c" required></div>
+                    <div class="form-group"><label>D)</label><input type="text" class="form-input q-d" required></div>
+                </div>
+                <div class="form-group">
+                    <label>Resposta Correta:</label>
+                    <select class="form-select q-correct"><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option></select>
+                </div>
+            `;
+            container.appendChild(qDiv);
+        }
+
+        async function createActivity(e) {
+            e.preventDefault();
+            const recipients = Array.from(document.querySelectorAll('#actStudentList input:checked')).map(cb => cb.value);
+            if (!recipients.length) return showToast('Atenção', 'Selecione os destinatários.', 'error');
+
+            const qItems = document.querySelectorAll('.q-item');
+            const questions = Array.from(qItems).map(qi => ({
+                text: qi.querySelector('.q-text').value,
+                a: qi.querySelector('.q-a').value,
+                b: qi.querySelector('.q-b').value,
+                c: qi.querySelector('.q-c').value,
+                d: qi.querySelector('.q-d').value,
+                correct: qi.querySelector('.q-correct').value
+            }));
+
+            const payload = {
+                title: document.getElementById('actTitle').value,
+                date: new Date().toLocaleDateString('pt-BR'),
+                recipients,
+                questions
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/activities`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast('Sucesso', 'Atividade criada e enviada!');
+                    loadData(); // Recarrega tudo
+                    closeModal('modalCreateActivity');
+                    e.target.reset();
+                    document.getElementById('questionsContainer').innerHTML = ''; // Limpa perguntas
+                } else {
+                    const err = await res.json();
+                    showToast('Erro', 'Erro ao criar: ' + err.error, 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Erro', 'Erro de conexão ao criar atividade.', 'error');
+            }
+        }
+
+        // ... (outras funções omitidas se não mudarem) ...
+        // ... Vou pular o bloco de compressFile/handleUpload que já está ok ...
+
+        // REESCREVENDO handleUpload para garantir que recipients vá certo
+        async function handleUpload(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+
+            // Pega IDs dos checkboxes (Values são IDs agora)
+            const selectedIds = Array.from(document.querySelectorAll('#uploadStudentList input:checked')).map(cb => cb.value);
+
+            if (!selectedIds.length) return alert('Selecione os destinatários.');
+
+            // Log para debug
+            console.log("Enviando upload para:", selectedIds);
+
+            const fileInput = document.getElementById('uploadFile');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+
+            formData.append('title', document.getElementById('uploadTitle').value);
+            formData.append('desc', document.getElementById('uploadDesc').value);
+            // Array deve ser enviado repetido ou como JSON string dependendo do Multer, vamos de JSON string para garantir
+            formData.append('recipients', JSON.stringify(selectedIds));
+            formData.append('date', new Date().toLocaleDateString('pt-BR'));
+
+            if (file) {
+                formData.append('file', file);
+            }
+
+            btn.innerText = "Processando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/content`, {
+                    method: 'POST',
+                    body: formData // Fetch gerencia o Content-Type para FormData
+                });
+
+                if (res.ok) {
+                    alert('Conteúdo enviado com sucesso!');
+                    loadData();
+                    closeModal('modalUpload');
+                    e.target.reset();
+                } else {
+                    const err = await res.json();
+                    alert('Erro: ' + err.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao enviar conteúdo.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function createActivity_LEGACY_REMOVED(e) { /* Placeholder para garantir o replace */ }
+
+        // Nova versão AddReport com API
+        async function addReport(e) {
+            e.preventDefault();
+            const feedback = document.getElementById('reportFeedback').value;
+            const ids = Array.from(document.querySelectorAll('#reportStudentList input:checked')).map(cb => cb.value);
+
+            if (ids.length === 0) return showToast('Atenção', 'Selecione pelo menos um aluno.', 'error');
+
+            try {
+                for (const id of ids) {
+                    const s = students.find(st => String(st._id) === String(id) || String(st.id) === String(id));
+                    const studentName = s ? s.name : 'Aluno';
+
+                    await fetch(`${API_URL}/reports`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            studentId: id,
+                            student: studentName,
+                            feedback,
+                            date: new Date().toLocaleDateString('pt-BR')
+                        })
+                    });
+                }
+                showToast('Sucesso', 'Feedbacks enviados!');
+                closeModal('modalAddReport');
+                loadData();
+                e.target.reset();
+            } catch (err) { showToast('Erro', 'Erro ao enviar: ' + err.message, 'error'); }
+        }
+
+        function openManageStudent(id) {
+            if (!students || students.length === 0) {
+                return showToast('Aguarde', 'Carregando dados...', 'error');
+            }
+
+            const student = students.find(s => String(s._id) === String(id) || String(s.id) === String(id));
+            if (!student) return showToast('Erro', 'Aluno não encontrado.', 'error');
+
+            document.getElementById('editStudentId').value = student._id || student.id;
+            document.getElementById('editStudentName').value = student.name;
+            document.getElementById('editStudentEmail').value = student.email;
+            document.getElementById('editStudentPass').value = student.password;
+            document.getElementById('editStudentLevel').value = student.level;
+            document.getElementById('editStudentPayment').value = student.payment || '';
+
+            openModal('modalEditStudent');
+        }
+
+        async function handleEditStudent(e) {
+            e.preventDefault();
+            const id = document.getElementById('editStudentId').value;
+            const payload = {
+                email: document.getElementById('editStudentEmail').value,
+                password: document.getElementById('editStudentPass').value,
+                level: document.getElementById('editStudentLevel').value,
+                payment: document.getElementById('editStudentPayment').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/students/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast('Sucesso', 'Dados atualizados com sucesso!');
+                    closeModal('modalEditStudent');
+                    loadData();
+                } else {
+                    const err = await res.json();
+                    showToast('Erro', 'Erro ao atualizar: ' + (err.error || 'Desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Erro', 'Erro de conexão.', 'error');
+            }
+        }
+
+        async function updatePaymentStatus(studentId, newStatus) {
+            try {
+                const res = await fetch(`${API_URL}/students/${studentId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paymentStatus: newStatus })
+                });
+
+                if (res.ok) {
+                    showToast('Sucesso', 'Status de pagamento atualizado!');
+                    loadData(); // Recarrega para atualizar a cor do dropdown
+                } else {
+                    const err = await res.json();
+                    showToast('Erro', 'Erro ao atualizar status: ' + (err.error || 'Desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Erro', 'Erro de conexão.', 'error');
+            }
+        }
+
+
+        async function deleteActivity(id) {
+            if (!confirm('Remover esta atividade?')) return;
+            try {
+                await fetch(`${API_URL}/activities/${id}`, { method: 'DELETE' });
+                loadData();
+            } catch (err) { console.error(err); }
+        }
+
+        // addReport MOVIDO PARA CIMA (API INTEGRATION)
+
+
+        async function deleteReport(id) {
+            if (!confirm('Apagar histórico?')) return;
+            try {
+                await fetch(`${API_URL}/reports/${id}`, { method: 'DELETE' });
+                loadData();
+            } catch (err) { console.error(err); }
+        }
+
+        async function deleteResult(id) {
+            if (!confirm('Apagar resultado?')) return;
+            try {
+                await fetch(`${API_URL}/activity_results/${id}`, { method: 'DELETE' });
+                loadData();
+            } catch (err) { console.error(err); }
+        }
+
+        // --- GLOBAL EVENT DELEGATION ---
+        document.addEventListener('click', function (e) {
+            // EDITAR ALUNO
+            const editBtn = e.target.closest('.edit-btn');
+            if (editBtn) {
+                const id = editBtn.getAttribute('data-id');
+                if (id) openManageStudent(id);
+                return;
+            }
+
+            // EXCLUIR ALUNO
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                const id = deleteBtn.getAttribute('data-id');
+                if (id) deleteStudent(id);
+                return;
+            }
+
+            // ABRIR DETALHES DE ATIVIDADE (Event Delegation)
+            const actCard = e.target.closest('.activity-card-item');
+            if (actCard && !e.target.closest('button')) {
+                const id = actCard.getAttribute('data-activity-id');
+                if (id) openActivityDetails(id);
+                return;
+            }
+
+            // VISUALIZAR RESULTADO DETALHADO (Card de Resultado)
+            const methodsCard = e.target.closest('.result-card-item');
+            if (methodsCard && !e.target.closest('button')) {
+                // Já tratado no onclick inline, mas se for migrar para function:
+                // const resId = methodsCard.getAttribute('data-result-id');
+                // viewDetailedResult(resId);
+            }
+        });
+
+        // --- VISUALIZAÇÃO DETALHADA DE RESULTADOS ---
+        function viewDetailedResult(result) {
+            // Se passar o objeto direto no onclick fica feio, melhor passar ID ou indice. 
+            // Mas como estamos recebendo um objeto JSON stringified no onclick (hacky) ou ID.
+            // Vamos fazer do jeito limpo: passar ID e buscar.
+        }
+
+        function showResultDetails(id) {
+            const result = activity_results.find(r => r._id === id || r.id === id);
+            if (!result) return;
+
+            // Cria modal dinâmico se n existir
+            let modal = document.getElementById('modalResultDetails');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalResultDetails';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
+                        <h2 id="resDetailTitle" style="margin-bottom:0.5rem;">Detalhes da Atividade</h2>
+                        <p id="resDetailStudent" style="color:var(--text-secondary); margin-bottom:1.5rem;"></p>
+                        <div id="resDetailContent"></div>
+                        <div class="form-actions" style="margin-top:2rem;">
+                            <button class="btn btn-secondary" onclick="document.getElementById('modalResultDetails').style.display='none'">Fechar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            document.getElementById('resDetailTitle').innerText = result.activityTitle;
+            document.getElementById('resDetailStudent').innerText = `Aluno: ${result.student} | Data: ${result.date} | Nota: ${result.score}/${result.total}`;
+
+            const contentDiv = document.getElementById('resDetailContent');
+            if (result.detailedAnswers && result.detailedAnswers.length) {
+                contentDiv.innerHTML = result.detailedAnswers.map((ans, i) => `
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${ans.isCorrect ? '#60ffb0' : '#ff6060'};">
+                        <p style="font-weight:bold; margin-bottom:0.5rem; font-size: 0.95rem;">${i + 1}. ${ans.question}</p>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.3rem;"><span style="opacity:0.6">Resposta do aluno:</span> <span style="color:${ans.isCorrect ? '#60ffb0' : '#ff6060'}">${ans.userAnswer}</span></p>
+                        ${!ans.isCorrect ? `<p style="font-size: 0.9rem;"><span style="opacity:0.6">Correta:</span> <span style="color:#60ffb0">${ans.correctAnswer}</span></p>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                contentDiv.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; opacity: 0.7;">
+                        <p style="margin-bottom: 1rem;">Gabarito detalhado indisponível para esta atividade.</p>
+                        <small>Isso ocorre em atividades realizadas antes da atualização do sistema.</small>
+                    </div>
+                `;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        // --- NOVA LÓGICA DE DETALHES DA ATIVIDADE ---
+
+        let currentActivityRecipients = [];
+
+        function openActivityDetails(id) {
+            try {
+                console.log('Opening activity details for ID:', id);
+
+                // Find activity by _id or id
+                const activity = activities.find(a => String(a._id || a.id) === String(id));
+
+                if (!activity) {
+                    console.error('Activity not found for ID:', id);
+                    alert('Erro: Atividade não encontrada. ID: ' + id);
+                    return;
+                }
+
+                // Validate essential elements
+                if (!document.getElementById('viewActId') || !document.getElementById('viewActQuestions')) {
+                    throw new Error("Elementos do modal não encontrados no DOM.");
+                }
+
+                document.getElementById('viewActId').value = id;
+                document.getElementById('viewActTitle').innerText = activity.title;
+
+                const qContainer = document.getElementById('viewActQuestions');
+                if (!activity.questions || !Array.isArray(activity.questions)) {
+                    qContainer.innerHTML = '<p>Erro: Questões inválidas.</p>';
+                } else {
+                    qContainer.innerHTML = activity.questions.map((q, idx) => `
+                        <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+                            <p style="font-weight: bold; margin-bottom: 0.8rem;">${idx + 1}. ${q.text}</p>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li style="padding: 0.4rem; border-radius: 8px; ${q.correct === 'a' ? 'background: rgba(96, 255, 176, 0.1); color: #60ffb0; font-weight: bold;' : ''}">A) ${q.a} ${q.correct === 'a' ? '✅' : ''}</li>
+                                <li style="padding: 0.4rem; border-radius: 8px; ${q.correct === 'b' ? 'background: rgba(96, 255, 176, 0.1); color: #60ffb0; font-weight: bold;' : ''}">B) ${q.b} ${q.correct === 'b' ? '✅' : ''}</li>
+                                <li style="padding: 0.4rem; border-radius: 8px; ${q.correct === 'c' ? 'background: rgba(96, 255, 176, 0.1); color: #60ffb0; font-weight: bold;' : ''}">C) ${q.c} ${q.correct === 'c' ? '✅' : ''}</li>
+                                <li style="padding: 0.4rem; border-radius: 8px; ${q.correct === 'd' ? 'background: rgba(96, 255, 176, 0.1); color: #60ffb0; font-weight: bold;' : ''}">D) ${q.d} ${q.correct === 'd' ? '✅' : ''}</li>
+                            </ul>
+                        </div>
+                    `).join('');
+                }
+
+                // Setup Recipients List
+                const list = document.getElementById('viewActStudentList');
+                currentActivityRecipients = activity.recipients || [];
+
+                // Handle 'all' logic
+                const isAll = currentActivityRecipients.includes('all');
+                const checkAll = document.getElementById('checkAllStudents');
+                if (checkAll) checkAll.checked = isAll;
+
+                if (!students) {
+                    list.innerHTML = '<p>Nenhum aluno carregado.</p>';
+                } else {
+                    list.innerHTML = students.map(s => {
+                        const isChecked = isAll || currentActivityRecipients.includes(s._id || s.id);
+                        return `
+                            <label style="display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" class="act-recipient-cb" value="${s._id || s.id}" ${isChecked ? 'checked' : ''} ${isAll ? 'disabled' : ''}> 
+                                <span>${s.name}</span>
+                            </label>
+                        `;
+                    }).join('');
+                }
+
+                openModal('modalViewActivity');
+            } catch (err) {
+                console.error("Erro ao abrir detalhes da atividade:", err);
+                alert("Erro ao abrir detalhes: " + err.message);
+            }
+        }
+
+        function toggleAllActivityStudents(checkbox) {
+            const checkboxes = document.querySelectorAll('.act-recipient-cb');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                cb.disabled = checkbox.checked;
+            });
+        }
+
+        async function handleActivityUpdate(e) {
+            e.preventDefault();
+            const id = document.getElementById('viewActId').value;
+            const isAll = document.getElementById('checkAllStudents').checked;
+
+            let recipients = [];
+            if (isAll) {
+                recipients = ['all'];
+            } else {
+                recipients = Array.from(document.querySelectorAll('.act-recipient-cb:checked')).map(cb => cb.value);
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/activities/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipients }) // Apenas atualizando recipientes por enquanto
+                });
+
+                if (res.ok) {
+                    alert('Atividade atualizada com sucesso!');
+                    closeModal('modalViewActivity');
+                    loadData();
+                } else {
+                    alert('Erro ao atualizar atividade.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erro de conexão.');
+            }
+        }
+
+        // --- EXPOSE GLOBAL FUNCTIONS ---
+        window.openManageStudent = openManageStudent;
+        window.handleEditStudent = handleEditStudent;
+        window.deleteStudent = deleteStudent;
+        window.deleteContent = deleteContent;
+        window.deleteActivity = deleteActivity;
+        window.deleteReport = deleteReport;
+        window.deleteResult = deleteResult;
+
+        window.addStudent = addStudent;
+        window.handleUpload = handleUpload;
+        window.createActivity = createActivity;
+        window.addReport = addReport;
+
+        window.switchTab = switchTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.toggleLinkPlaceholder = toggleLinkPlaceholder;
+        window.addQuestionField = addQuestionField;
+
+        window.openActivityDetails = openActivityDetails;
+        window.toggleAllActivityStudents = toggleAllActivityStudents;
+        window.handleActivityUpdate = handleActivityUpdate;
+
+        // INICIAR
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>
+
+</html>

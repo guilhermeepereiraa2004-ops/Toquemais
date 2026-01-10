@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO PRIMARY -->
+  <title>Toquemais | Aulas de Música Online</title>
+  <meta name="description"
+    content="Plataforma exclusiva Toquemais para aulas de música, materiais didáticos, vídeos e acompanhamento personalizado de alunos.">
+  <meta name="keywords"
+    content="Música, Aulas de Música, Piano, Teclado, Guitarra, Educação Musical, Toquemais, Curso Online">
+  <meta name="author" content="Toquemais">
+
+  <!-- OPEN GRAPH / FACEBOOK / WHATSAPP -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Toquemais | Aulas de Música Online">
+  <meta property="og:description"
+    content="Acesse seus vídeos, relatórios e atividades na plataforma oficial Toquemais.">
+  <meta property="og:url" content="https://toquemais.vercel.app/">
+  <meta property="og:image" content="https://toquemais.vercel.app/logo.jpg">
+
+  <!-- TWITTER -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Toquemais | Aulas de Música Online">
+  <meta name="twitter:description"
+    content="Acesse seus vídeos, relatórios e atividades na plataforma oficial Toquemais.">
+  <meta name="twitter:image" content="https://toquemais.vercel.app/logo.jpg">
+
+  <!-- PWA MANIFEST -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#a760ff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Toque+">
+
+  <!-- ICONS -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon-192x192.png">
+
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23a760ff;stop-opacity:1%22 /><stop offset=%22100%25%22 style=%22stop-color:%23ec4899;stop-opacity:1%22 /></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22 /><text y=%22.9em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2270%22 font-family=%22sans-serif%22 font-weight=%22800%22 fill=%22white%22>T+</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-page">
+  <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div class="logo-content" style="margin-bottom: 3.5rem; text-align: center; animation: fadeInDown 0.8s ease-out;">
+      <h1 class="logo-title" style="font-size: 4.5rem; letter-spacing: -2px;">Toque<span class="logo-plus">+</span></h1>
+    </div>
+
+    <div class="card-glass login-card">
+      <h2
+        style="text-align: center; margin-bottom: 2rem; font-family: var(--font-display); color: white; letter-spacing: -0.5px;">
+        Portal do Aluno</h2>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Entrar na Academia</button>
+      </form>
+
+      <div style="margin-top: 2.5rem; text-align: center;">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); opacity: 0.8;">Novos alunos devem solicitar os
+          acessos ao professor.</p>
+      </div>
+    </div>
+
+    <p
+      style="margin-top: 4rem; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+      © 2025 TOQUE+</p>
+  </div>
+
+  <style>
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+
+  <script>
+    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+      ? 'http://localhost:3001/api'
+      : '/api';
+
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const btn = e.target.querySelector('button');
+
+      // 1. Admin Fixo
+      if (email === 'gui@aula.com' && password === '123456') {
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      btn.innerText = 'Verificando...';
+      btn.disabled = true;
+
+      try {
+        // 2. Buscar alunos da API/MongoDB
+        const res = await fetch(`${API_URL}/data`);
+        const data = await res.json();
+        const students = data.students || [];
+
+        const student = students.find(s => s.email === email && s.password === password);
+
+        if (student) {
+          localStorage.setItem('lastLoginEmail', email);
+          window.location.href = 'aluno.html';
+        } else {
+          alert('Credenciais não reconhecidas pelo sistema.');
+          btn.innerText = 'Entrar na Academia';
+          btn.disabled = false;
+        }
+      } catch (error) {
+        console.error("Erro no login:", error);
+        alert('Erro de conexão com o servidor. Verifique se o backend está rodando.');
+        btn.innerText = 'Entrar na Academia';
+        btn.disabled = false;
+      }
+    });
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('SW registered:', registration);
+          })
+          .catch(error => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>
