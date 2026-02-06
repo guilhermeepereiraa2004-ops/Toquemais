@@ -151,14 +151,10 @@ function AdminDashboard() {
                     type: formData.get('type')
                 };
 
-                const response = await fetch(`${API_URL}/api/data`, {
-                    method: 'POST',
+                const response = await fetch(`${API_URL}/api/content/${editingContent.id}`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        students,
-                        reports,
-                        contents: contents.map(c => c.id === editingContent.id ? updatedContent : c)
-                    })
+                    body: JSON.stringify(updatedContent)
                 });
 
                 if (response.ok) {
@@ -177,7 +173,7 @@ function AdminDashboard() {
                 uploadData.append('type', formData.get('type'));
                 uploadData.append('recipients', JSON.stringify(recipients));
 
-                const response = await fetch(`${API_URL}/api/upload`, {
+                const response = await fetch(`${API_URL}/api/content`, {
                     method: 'POST',
                     body: uploadData
                 });
@@ -214,11 +210,15 @@ function AdminDashboard() {
             });
 
             if (response.ok) {
-                setContents(prev => prev.filter(c => c.id !== id));
-                addToast('Conteúdo excluído!', 'success');
+                setContents(prev => prev.filter(c => c.id !== id && c._id !== id));
+                addToast('Conteúdo excluído com sucesso!', 'success');
+            } else {
+                const data = await response.json();
+                addToast(data.error || 'Erro ao excluir conteúdo do servidor.', 'error');
             }
         } catch (err) {
-            addToast('Erro ao excluir conteúdo.', 'error');
+            console.error("Erro ao excluir:", err);
+            addToast('Erro de conexão ao excluir conteúdo.', 'error');
         }
     }
 

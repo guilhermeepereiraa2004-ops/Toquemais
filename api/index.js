@@ -36,6 +36,18 @@ const upload = multer({
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
+// --- HELPER PARA QUERY SEGURA POR ID ---
+const getSafeQuery = (id) => {
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        return { _id: id };
+    }
+    const numericId = Number(id);
+    if (!isNaN(numericId)) {
+        return { id: numericId };
+    }
+    return { id: id }; // Fallback para string literal se não for nenhum dos anteriores
+};
+
 // --- ROTA DE DIAGNÓSTICO (Para debugar no Vercel) ---
 app.get('/api/health', (req, res) => {
     res.json({
@@ -99,9 +111,9 @@ app.post('/api/students', async (req, res) => {
 
 app.put('/api/students/:id', async (req, res) => {
     try {
-        await connectDB(); // Garantir conexão ativa antes de atualizar
+        await connectDB();
         const { id } = req.params;
-        const updated = await Student.findOneAndUpdate({ $or: [{ id: id }, { _id: id }] }, req.body, { new: true });
+        const updated = await Student.findOneAndUpdate(getSafeQuery(id), req.body, { new: true });
         res.json(updated);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -111,7 +123,7 @@ app.put('/api/students/:id', async (req, res) => {
 app.delete('/api/students/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await Student.findOneAndDelete({ $or: [{ id: id }, { _id: id }] });
+        await Student.findOneAndDelete(getSafeQuery(id));
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -167,15 +179,37 @@ app.post('/api/content', upload.single('file'), async (req, res) => {
 app.delete('/api/content/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const content = await Content.findOne({ $or: [{ id: id }, { _id: id }] });
+        const query = getSafeQuery(id);
+        const content = await Content.findOne(query);
 
         if (content) {
+            // 1. Deletar arquivo do Firebase se existir
             if (content.fileUrl && content.fileUrl.includes('storage.googleapis.com')) {
                 await deleteFileFromFirebase(content.fileName || content.fileUrl).catch(err => console.error("Erro delete FB:", err));
             }
+
+            // 2. Remover o conteúdo de qualquer lista vinculada em alunos (se existir)
+            const contentIdStr = content.id ? content.id.toString() : content._id.toString();
+            await Student.updateMany(
+                { contents: contentIdStr },
+                { $pull: { contents: contentIdStr } }
+            ).catch(err => console.error("Erro ao limpar aluno:", err));
+
+            // 3. Deletar o documento principal
             await Content.deleteOne({ _id: content._id });
         }
         res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/content/:id', async (req, res) => {
+    try {
+        await connectDB();
+        const { id } = req.params;
+        const updated = await Content.findOneAndUpdate(getSafeQuery(id), req.body, { new: true });
+        res.json({ success: true, content: updated });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -195,7 +229,7 @@ app.post('/api/reports', async (req, res) => {
 app.delete('/api/reports/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await Report.findOneAndDelete({ $or: [{ id }, { _id: id }] });
+        await Report.findOneAndDelete(getSafeQuery(id));
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: error.message });
