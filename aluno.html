@@ -502,7 +502,7 @@
         const dbVersion = 1;
 
         const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
-            ? 'http://localhost:3001/api'
+            ? (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api')
             : '/api';
 
         // Carregar Dados da API
@@ -584,7 +584,7 @@
 
 
             // --- CONTEÚDOS (AULAS) ---
-            const myContents = contents.filter(c => c.recipients.includes(String(student.id)) || c.recipients.includes(String(student._id)));
+            const myContents = contents.filter(c => c && c.recipients && Array.isArray(c.recipients) && (c.recipients.includes(String(student.id)) || c.recipients.includes(String(student._id))));
             document.getElementById('videoCount').innerText = `${myContents.length} aulas disponíveis`;
             const vidGrid = document.getElementById('studentVideoGrid');
             vidGrid.innerHTML = myContents.length ? myContents.map(c => {
@@ -611,8 +611,10 @@
             // --- RELATÓRIOS (ANÁLISES) ---
             // Filtra por ID ou Nome (retrocompatibilidade)
             const myReports = reports.filter(r =>
-                (r.studentId && (String(r.studentId) === String(student.id) || String(r.studentId) === String(student._id))) ||
-                (r.student && r.student === student.name)
+                r && (
+                    (r.studentId && (String(r.studentId) === String(student.id) || String(r.studentId) === String(student._id))) ||
+                    (r.student && String(r.student) === String(student.name))
+                )
             );
 
             document.getElementById('reportCount').innerText = `${myReports.length} relatórios`;
@@ -630,8 +632,7 @@
 
 
             // --- ATIVIDADES (QUIZ) ---
-            // --- ATIVIDADES (QUIZ) ---
-            const myActivities = activities.filter(a => a.recipients.includes(String(student.id)) || a.recipients.includes(String(student._id)));
+            const myActivities = activities.filter(a => a && a.recipients && Array.isArray(a.recipients) && (a.recipients.includes(String(student.id)) || a.recipients.includes(String(student._id))));
 
             // Separa entre Feitas e Pendentes
             const doneActivityIds = activity_results
