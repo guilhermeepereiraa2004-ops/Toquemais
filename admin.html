@@ -1014,7 +1014,8 @@
 
             formData.append('title', document.getElementById('uploadTitle').value);
             formData.append('desc', document.getElementById('uploadDesc').value);
-            // Array deve ser enviado repetido ou como JSON string dependendo do Multer, vamos de JSON string para garantir
+            formData.append('type', document.getElementById('uploadType').value);
+            formData.append('link', document.getElementById('uploadLink').value);
             formData.append('recipients', JSON.stringify(selectedIds));
             formData.append('date', new Date().toLocaleDateString('pt-BR'));
 

@@ -121,25 +121,32 @@ app.delete('/api/students/:id', async (req, res) => {
 // --- ROTAS CONTEÚDO (UPLOAD) ---
 app.post('/api/content', upload.single('file'), async (req, res) => {
     try {
+        await connectDB();
+
         // Garantir que recipients seja salva corretamente (se vier stringificada)
         let recipients = req.body.recipients;
         if (typeof recipients === 'string') {
             try { recipients = JSON.parse(recipients); } catch (e) { recipients = [recipients]; }
         }
 
+        const contentData = {
+            title: req.body.title,
+            desc: req.body.desc,
+            type: req.body.type || 'material',
+            link: req.body.link || '',
+            recipients: recipients,
+            date: req.body.date || new Date().toLocaleDateString('pt-BR')
+        };
+
         if (!req.file) {
-            const newContent = await Content.create({
-                ...req.body,
-                recipients: recipients
-            });
+            const newContent = await Content.create(contentData);
             return res.json({ success: true, content: newContent });
         }
 
         try {
             const fileData = await uploadFileToFirebase(req.file);
             const newContent = await Content.create({
-                ...req.body,
-                recipients: recipients,
+                ...contentData,
                 fileUrl: fileData.url,
                 fileName: fileData.fileName,
                 fileType: req.file.mimetype,
@@ -148,12 +155,12 @@ app.post('/api/content', upload.single('file'), async (req, res) => {
             return res.json({ success: true, content: newContent });
         } catch (fbError) {
             console.error("Erro no Firebase:", fbError);
-            return res.status(500).json({ error: 'Erro ao fazer upload para nuvem. Verifique credenciais.' });
+            return res.status(500).json({ error: 'Erro ao fazer upload para nuvem. Verifique FIREBASE_SERVICE_ACCOUNT.' });
         }
 
     } catch (error) {
         console.error("Erro geral upload:", error);
-        res.status(500).json({ error: 'Erro interno no upload.' });
+        res.status(500).json({ error: 'Erro interno no upload: ' + error.message });
     }
 });
 
