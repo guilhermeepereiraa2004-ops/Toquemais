@@ -4,22 +4,52 @@ import './LoginPage.css'
 
 function LoginPage() {
     const navigate = useNavigate()
-    const [isLogin, setIsLogin] = useState(true)
     const [formData, setFormData] = useState({
-        email: '',
+        identifier: '',
         password: '',
-        name: '',
         userType: 'student'
     })
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
-    const handleSubmit = (e) => {
+    const API_URL = "http://localhost:3001"
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
+        setError('')
 
-        // Simulação de login - em produção, conectar com backend
         if (formData.userType === 'admin') {
+            // Admin login - mantém simulação
             navigate('/admin')
-        } else {
-            navigate('/student')
+            return
+        }
+
+        // Login do aluno via API (por nome OU email)
+        setLoading(true)
+        try {
+            const response = await fetch(`${API_URL}/api/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    identifier: formData.identifier.trim(),
+                    password: formData.password
+                })
+            })
+
+            const data = await response.json()
+
+            if (response.ok && data.success) {
+                // Salvar dados do aluno logado
+                localStorage.setItem('loggedStudent', JSON.stringify(data.student))
+                navigate('/student')
+            } else {
+                setError(data.error || 'Erro ao fazer login.')
+            }
+        } catch (err) {
+            console.error('Erro de conexão:', err)
+            setError('Erro de conexão com o servidor.')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -28,6 +58,7 @@ function LoginPage() {
             ...formData,
             [e.target.name]: e.target.value
         })
+        setError('')
     }
 
     return (
@@ -41,55 +72,17 @@ function LoginPage() {
                 <div className="login-container">
                     <div className="login-card card-glass">
                         <div className="login-header">
-                            <h2>{isLogin ? 'Bem-vindo de Volta!' : 'Criar Conta'}</h2>
-                            <p>{isLogin ? 'Entre para continuar seus estudos' : 'Comece sua jornada musical hoje'}</p>
+                            <h2>Bem-vindo de Volta!</h2>
+                            <p>Entre para continuar seus estudos</p>
                         </div>
 
+                        {error && (
+                            <div className="login-error">
+                                <span>⚠️</span> {error}
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="login-form">
-                            {!isLogin && (
-                                <div className="form-group">
-                                    <label className="form-label" htmlFor="name">Nome Completo</label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        className="form-input"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        required={!isLogin}
-                                        placeholder="Seu nome"
-                                    />
-                                </div>
-                            )}
-
-                            <div className="form-group">
-                                <label className="form-label" htmlFor="email">Email</label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    className="form-input"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="seu@email.com"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label className="form-label" htmlFor="password">Senha</label>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    className="form-input"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="••••••••"
-                                />
-                            </div>
-
                             <div className="form-group">
                                 <label className="form-label" htmlFor="userType">Tipo de Usuário</label>
                                 <select
@@ -104,28 +97,51 @@ function LoginPage() {
                                 </select>
                             </div>
 
-                            {isLogin && (
-                                <div className="form-footer">
-                                    <a href="#" className="forgot-password">Esqueceu a senha?</a>
-                                </div>
-                            )}
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="identifier">
+                                    {formData.userType === 'student' ? 'Nome ou E-mail' : 'Email'}
+                                </label>
+                                <input
+                                    type="text"
+                                    id="identifier"
+                                    name="identifier"
+                                    className="form-input"
+                                    value={formData.identifier}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder={formData.userType === 'student' ? 'Seu nome ou e-mail' : 'admin@email.com'}
+                                    autoComplete="username"
+                                />
+                                {formData.userType === 'student' && (
+                                    <small className="form-hint">
+                                        💡 Alunos podem entrar usando o nome ou e-mail cadastrado
+                                    </small>
+                                )}
+                            </div>
 
-                            <button type="submit" className="btn btn-primary btn-full">
-                                {isLogin ? 'Entrar' : 'Criar Conta'}
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="password">Senha</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    className="form-input"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="••••••••"
+                                    autoComplete="current-password"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-full"
+                                disabled={loading}
+                            >
+                                {loading ? 'Entrando...' : 'Entrar'}
                             </button>
                         </form>
-
-                        <div className="login-divider">
-                            <span>ou</span>
-                        </div>
-
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-full"
-                            onClick={() => setIsLogin(!isLogin)}
-                        >
-                            {isLogin ? 'Criar Nova Conta' : 'Já Tenho Conta'}
-                        </button>
                     </div>
 
                     <div className="login-info">
@@ -149,3 +165,4 @@ function LoginPage() {
 }
 
 export default LoginPage
+

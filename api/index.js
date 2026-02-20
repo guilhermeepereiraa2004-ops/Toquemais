@@ -12,6 +12,7 @@ import Content from '../src/models/Content.js';
 import Report from '../src/models/Report.js';
 import Activity from '../src/models/Activity.js';
 import ActivityResult from '../src/models/ActivityResult.js';
+import Goal from '../src/models/Goal.js';
 
 dotenv.config();
 
@@ -56,6 +57,48 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// --- ROTA DE LOGIN (Email OU Nome + Senha) ---
+app.post('/api/login', async (req, res) => {
+    try {
+        await connectDB();
+        const { identifier, password } = req.body;
+
+        if (!identifier || !password) {
+            return res.status(400).json({ error: 'Preencha todos os campos.' });
+        }
+
+        // Buscar por email OU nome (case-insensitive para nome)
+        const student = await Student.findOne({
+            $or: [
+                { email: identifier },
+                { name: { $regex: new RegExp(`^${identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } }
+            ],
+            active: true
+        });
+
+        if (!student) {
+            return res.status(401).json({ error: 'Aluno não encontrado.' });
+        }
+
+        if (student.password !== password) {
+            return res.status(401).json({ error: 'Senha incorreta.' });
+        }
+
+        res.json({
+            success: true,
+            student: {
+                id: student._id,
+                name: student.name,
+                email: student.email,
+                level: student.level
+            }
+        });
+    } catch (error) {
+        console.error('Erro no login:', error);
+        res.status(500).json({ error: 'Erro interno no login.' });
+    }
+});
+
 // --- ROTA PRINCIPAL: DADOS AGREGADOS ---
 app.get('/api/data', async (req, res) => {
     // Fail-safe: Se não tiver conectado ao banco ainda
@@ -73,12 +116,13 @@ app.get('/api/data', async (req, res) => {
     }
 
     try {
-        const [students, contents, reports, activities, activity_results] = await Promise.all([
+        const [students, contents, reports, activities, activity_results, goals] = await Promise.all([
             Student.find().sort({ name: 1 }),
             Content.find().sort({ createdAt: -1 }),
             Report.find().sort({ createdAt: -1 }),
             Activity.find().sort({ createdAt: -1 }),
-            ActivityResult.find().sort({ createdAt: -1 })
+            ActivityResult.find().sort({ createdAt: -1 }),
+            Goal.find({ active: true }).sort({ createdAt: -1 })
         ]);
 
         res.json({
@@ -86,7 +130,8 @@ app.get('/api/data', async (req, res) => {
             contents,
             reports,
             activities,
-            activity_results
+            activity_results,
+            goals
         });
     } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -98,14 +143,26 @@ app.get('/api/data', async (req, res) => {
 app.post('/api/students', async (req, res) => {
     try {
         await connectDB();
-        const { email } = req.body;
-        const exists = await Student.findOne({ email });
-        if (exists) return res.status(400).json({ error: 'E-mail já cadastrado.' });
+        const { email, name } = req.body;
+
+        // Se tem email, verifica duplicidade por email
+        if (email && email.trim()) {
+            const existsByEmail = await Student.findOne({ email });
+            if (existsByEmail) return res.status(400).json({ error: 'E-mail já cadastrado.' });
+        } else {
+            // Se não tem email, remove do body para não salvar string vazia
+            delete req.body.email;
+        }
+
+        // Verifica se já existe aluno com o mesmo nome (para evitar duplicatas de login por nome)
+        const existsByName = await Student.findOne({ name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+        if (existsByName) return res.status(400).json({ error: 'Já existe um aluno cadastrado com esse nome.' });
 
         const newStudent = await Student.create(req.body);
         res.json(newStudent);
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao criar aluno.' });
+        console.error('Erro ao criar aluno:', error);
+        res.status(500).json({ error: 'Erro ao criar aluno: ' + error.message });
     }
 });
 
@@ -338,6 +395,59 @@ app.put('/api/activities/:id', async (req, res) => {
     } catch (error) {
         console.error("Erro ao atualizar atividade:", error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// --- ROTAS METAS ---
+app.post('/api/goals', async (req, res) => {
+    try {
+        await connectDB();
+        const { studentId, studentName, description, type } = req.body;
+        if (!studentId || !description) {
+            return res.status(400).json({ error: 'Aluno e descrição são obrigatórios.' });
+        }
+        const goal = await Goal.create({ studentId, studentName, description, type: type || 'daily' });
+        res.json(goal);
+    } catch (error) {
+        console.error('Erro ao criar meta:', error);
+        res.status(500).json({ error: 'Erro ao criar meta.' });
+    }
+});
+
+app.delete('/api/goals/:id', async (req, res) => {
+    try {
+        await connectDB();
+        const query = getSafeQuery(req.params.id);
+        await Goal.findOneAndDelete(query);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao deletar meta:', error);
+        res.status(500).json({ error: 'Erro ao deletar meta.' });
+    }
+});
+
+// Marcar/desmarcar meta como cumprida para uma data
+app.post('/api/goals/:id/toggle', async (req, res) => {
+    try {
+        await connectDB();
+        const query = getSafeQuery(req.params.id);
+        const { date } = req.body; // formato YYYY-MM-DD
+        if (!date) return res.status(400).json({ error: 'Data é obrigatória.' });
+
+        const goal = await Goal.findOne(query);
+        if (!goal) return res.status(404).json({ error: 'Meta não encontrada.' });
+
+        const idx = goal.completions.indexOf(date);
+        if (idx >= 0) {
+            goal.completions.splice(idx, 1); // Desmarcar
+        } else {
+            goal.completions.push(date); // Marcar
+        }
+        await goal.save();
+        res.json(goal);
+    } catch (error) {
+        console.error('Erro ao atualizar meta:', error);
+        res.status(500).json({ error: 'Erro ao atualizar meta.' });
     }
 });
 

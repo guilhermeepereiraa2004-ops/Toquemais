@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const StudentSchema = new mongoose.Schema({
     id: { type: String, default: () => Date.now().toString() },
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, sparse: true, unique: true, default: null }, // Opcional: alunos pequenos podem não ter email
     password: { type: String, required: true },
     cpf: { type: String },
     phone: { type: String },

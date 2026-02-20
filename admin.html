@@ -302,6 +302,9 @@
                 <button class="btn btn-secondary" onclick="openModal('modalAddReport')"
                     style="width: auto; border-color: var(--accent-pink); color: var(--accent-pink); border-radius: 16px;">+
                     Feedback</button>
+                <button class="btn btn-secondary" onclick="openModal('modalAddGoal')"
+                    style="width: auto; border-color: #fbbf24; color: #fbbf24; border-radius: 16px;">🎯+ Nova
+                    Meta</button>
             </div>
         </div>
 
@@ -324,6 +327,7 @@
             <button class="tab-btn active" onclick="switchTab('students', this)">Estudantes</button>
             <button class="tab-btn" onclick="switchTab('content', this)">Materiais</button>
             <button class="tab-btn" onclick="switchTab('activities', this)">Atividades</button>
+            <button class="tab-btn" onclick="switchTab('goals', this)">🎯Metas</button>
             <button class="tab-btn" onclick="switchTab('finance', this)">Financeiro</button>
             <button class="tab-btn" onclick="switchTab('reports', this)">Histórico</button>
         </div>
@@ -363,13 +367,81 @@
         </div>
 
         <div id="tab-finance" class="tab-content">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+                <button id="btnToggleExempt" class="btn btn-secondary" onclick="toggleHideExempt()"
+                    style="width: auto; padding: 0.7rem 1.8rem; border-radius: 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="exemptIcon">👁️</span> <span id="exemptLabel">Ocultar Isentos</span>
+                </button>
+            </div>
             <div class="premium-table-wrapper">
                 <div id="financeList"></div>
             </div>
         </div>
 
+        <!-- ABA METAS -->
+        <div id="tab-goals" class="tab-content">
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="font-family: var(--font-display); font-size: 2rem; color: white; margin: 0;">Metas
+                            dos Alunos</h2>
+                        <p style="color: var(--text-secondary); margin-top: 0.3rem;">Defina metas diárias, semanais ou
+                            mensais</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('modalAddGoal')"
+                        style="width: auto; padding: 0.8rem 2rem; border-radius: 16px; background: linear-gradient(135deg, #fbbf24, #f59e0b);">🎯
+                        Nova Meta</button>
+                </div>
+                <!-- Filtro por aluno -->
+                <div style="margin-bottom: 1.5rem;">
+                    <select id="goalFilterStudent" class="form-select" onchange="renderGoals()"
+                        style="width: auto; min-width: 250px; padding: 0.7rem 1.5rem; border-radius: 14px;">
+                        <option value="all">Todos os Alunos</option>
+                    </select>
+                </div>
+            </div>
+            <div id="goalsList" style="display: grid; gap: 1.5rem;"></div>
+        </div>
+
         <div id="tab-reports" class="tab-content">
             <div style="display: grid; gap: 1.5rem;" id="reportsList"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR META -->
+    <div id="modalAddGoal" class="modal">
+        <div class="modal-content">
+            <h2 style="font-family: var(--font-display); margin-bottom: 2rem; color: var(--text-primary);">🎯 Definir
+                Nova Meta</h2>
+            <form onsubmit="addGoal(event)">
+                <div class="form-group">
+                    <label>Aluno</label>
+                    <select id="goalStudentSelect" class="form-select" required>
+                        <option value="">Selecione o aluno...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição da Meta</label>
+                    <input type="text" class="form-input" id="goalDescription"
+                        placeholder="Ex: Treinar 20 minutos todos os dias" required>
+                </div>
+                <div class="form-group">
+                    <label>Frequência</label>
+                    <select id="goalType" class="form-select">
+                        <option value="daily">Diária</option>
+                        <option value="weekly">Semanal</option>
+                        <option value="monthly">Mensal</option>
+                    </select>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem;">💡 Define com que
+                        frequência o aluno deve cumprir esta meta</small>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('modalAddGoal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="flex: 2; background: linear-gradient(135deg, #fbbf24, #f59e0b);">Criar Meta</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -380,9 +452,15 @@
                 Novo Integrante</h2>
             <form onsubmit="addStudent(event)">
                 <div class="form-group"><label>Nome Completo</label><input type="text" class="form-input"
-                        id="newStudentName" placeholder="Identificação" required></div>
-                <div class="form-group"><label>E-mail Corporativo</label><input type="email" class="form-input"
-                        id="newStudentEmail" placeholder="usuario@email.com" required></div>
+                        id="newStudentName" placeholder="Nome do aluno" required></div>
+                <div class="form-group">
+                    <label>E-mail <small
+                            style="color: var(--text-muted); font-weight: normal;">(opcional)</small></label>
+                    <input type="text" class="form-input" id="newStudentEmail"
+                        placeholder="Deixe vazio para alunos sem email">
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem;">💡 Alunos sem email
+                        poderão fazer login usando o nome</small>
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div class="form-group">
                         <label>Graduação Musical</label>
@@ -494,8 +572,10 @@
                 <input type="hidden" id="editStudentId">
                 <div class="form-group"><label>Nome do Aluno</label><input type="text" id="editStudentName"
                         class="form-input" disabled></div>
-                <div class="form-group"><label>E-mail</label><input type="email" id="editStudentEmail"
-                        class="form-input" required></div>
+                <div class="form-group"><label>E-mail <small
+                            style="color: var(--text-muted); font-weight: normal;">(opcional)</small></label><input
+                        type="text" id="editStudentEmail" class="form-input"
+                        placeholder="Deixe vazio se não tiver email"></div>
                 <div class="form-group"><label>Senha de Acesso</label><input type="text" id="editStudentPass"
                         class="form-input" required></div>
                 <div class="form-group">
@@ -596,7 +676,7 @@
             ? (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api')
             : '/api';
 
-        let students = [], reports = [], contents = [], activities = [], activity_results = [];
+        let students = [], reports = [], contents = [], activities = [], activity_results = [], goals = [];
 
         // Helper de Toast
         function showToast(title, msg, type = 'success', icon = '✅') {
@@ -633,9 +713,11 @@
                 contents = data.contents || [];
                 activities = data.activities || [];
                 activity_results = data.activity_results || [];
+                goals = data.goals || [];
 
                 renderStudents();
                 updateStats();
+                populateGoalSelects();
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
                 showToast("Erro", "Falha ao conectar com o servidor.", 'error');
@@ -654,13 +736,17 @@
 
         async function addStudent(e) {
             e.preventDefault();
+            const emailValue = document.getElementById('newStudentEmail').value.trim();
             const payload = {
                 name: document.getElementById('newStudentName').value,
-                email: document.getElementById('newStudentEmail').value.toLowerCase(),
                 level: document.getElementById('newStudentLevel').value,
                 payment: document.getElementById('newStudentPayment').value,
                 password: document.getElementById('newStudentPass').value
             };
+            // Só inclui email se foi preenchido
+            if (emailValue) {
+                payload.email = emailValue.toLowerCase();
+            }
 
             try {
                 const res = await fetch(`${API_URL}/students`, {
@@ -764,7 +850,7 @@
                         <td>
                             <div style="display: flex; align-items: center; gap: 1rem;">
                                 <div style="width: 44px; height: 44px; border-radius: 14px; background: var(--gradient-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; box-shadow: var(--shadow-glow);">${s.name.charAt(0)}</div>
-                                <div><strong style="color: var(--text-primary); font-size: 1.05rem;">${s.name}</strong><br><small style="color: var(--text-muted); font-weight: 500;">${s.email}</small></div>
+                                <div><strong style="color: var(--text-primary); font-size: 1.05rem;">${s.name}</strong><br><small style="color: var(--text-muted); font-weight: 500;">${s.email || 'Login por nome'}</small></div>
                             </div>
                         </td>
                         <td><span class="badge badge-${s.level}">${levelMap[s.level] || s.level}</span></td>
@@ -781,12 +867,41 @@
             renderFinance();
         }
 
+        let hideExempt = false;
+
+        function toggleHideExempt() {
+            hideExempt = !hideExempt;
+            document.getElementById('exemptIcon').innerText = hideExempt ? '👁️‍🗨️' : '👁️';
+            document.getElementById('exemptLabel').innerText = hideExempt ? 'Mostrar Isentos' : 'Ocultar Isentos';
+            const btn = document.getElementById('btnToggleExempt');
+            if (hideExempt) {
+                btn.style.background = 'var(--gradient-primary)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'transparent';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }
+            renderFinance();
+        }
+
         function renderFinance() {
             const finance = document.getElementById('financeList');
+            const filteredStudents = (hideExempt ? students.filter(s => (s.paymentStatus || 'aguardando') !== 'isento') : [...students]).sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+            if (filteredStudents.length === 0) {
+                finance.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                        <p style="font-size: 1.1rem;">Nenhum aluno para exibir.</p>
+                        <small>Todos os alunos estão marcados como isentos.</small>
+                    </div>
+                `;
+                return;
+            }
             finance.innerHTML = `
                 <table class="premium-table">
                     <thead><tr><th style="text-align: left;">Integrante</th><th>Vencimento</th><th style="text-align: center;">Status</th><th style="text-align: center;">Notificação</th></tr></thead>
-                    <tbody>${students.map(s => {
+                    <tbody>${filteredStudents.map(s => {
                 const statusColors = {
                     'isento': '#60ffb0',
                     'em_dia': '#60ffb0',
@@ -811,7 +926,7 @@
                                     <option value="aguardando" ${currentStatus === 'aguardando' ? 'selected' : ''}>Aguardando pagamento</option>
                                 </select>
                             </td>
-                            <td style="text-align: center;"><button class="btn btn-secondary" style="width: auto; padding: 0.5rem 1.5rem; border-radius: 12px; font-size: 0.8rem;" onclick="alert('Lembrete enviado para ${s.email}')">🔔 Lembrar</button></td>
+                            <td style="text-align: center;"><button class="btn btn-secondary" style="width: auto; padding: 0.5rem 1.5rem; border-radius: 12px; font-size: 0.8rem;" onclick="alert('Lembrete enviado para ${s.name}')">🔔 Lembrar</button></td>
                         </tr>`;
             }).join('')}</tbody>
                 </table>
@@ -826,6 +941,7 @@
             if (tabId === 'content') renderContents();
             if (tabId === 'activities') renderActivities();
             if (tabId === 'reports') renderReports();
+            if (tabId === 'goals') renderGoals();
         }
 
         function renderActivities() {
@@ -1405,6 +1521,137 @@
         window.openActivityDetails = openActivityDetails;
         window.toggleAllActivityStudents = toggleAllActivityStudents;
         window.handleActivityUpdate = handleActivityUpdate;
+
+        // --- FUNÇÕES DE METAS ---
+        function populateGoalSelects() {
+            // Select do modal de criação
+            const select = document.getElementById('goalStudentSelect');
+            select.innerHTML = '<option value="">Selecione o aluno...</option>' +
+                students.map(s => `<option value="${s._id || s.id}" data-name="${s.name}">${s.name}</option>`).join('');
+
+            // Select do filtro
+            const filter = document.getElementById('goalFilterStudent');
+            filter.innerHTML = '<option value="all">Todos os Alunos</option>' +
+                students.map(s => `<option value="${s._id || s.id}">${s.name}</option>`).join('');
+        }
+
+        function renderGoals() {
+            const container = document.getElementById('goalsList');
+            const filterValue = document.getElementById('goalFilterStudent').value;
+
+            let filtered = goals;
+            if (filterValue !== 'all') {
+                filtered = goals.filter(g => String(g.studentId) === String(filterValue));
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                        <p style="font-size: 1.1rem;">Nenhuma meta definida ainda.</p>
+                        <small>Clique em "+ Nova Meta" para criar uma.</small>
+                    </div>`;
+                return;
+            }
+
+            const typeLabels = { 'daily': '📅 Diária', 'weekly': '📆 Semanal', 'monthly': '🗓️ Mensal' };
+            const typeColors = { 'daily': '#fbbf24', 'weekly': '#a760ff', 'monthly': '#ec4899' };
+
+            // Agrupar por aluno
+            const grouped = {};
+            filtered.forEach(g => {
+                const key = g.studentName || 'Sem nome';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(g);
+            });
+
+            let html = '';
+            Object.keys(grouped).sort().forEach(name => {
+                const studentGoals = grouped[name];
+                html += `
+                    <div style="background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: var(--card-shadow);">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+                            <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #fbbf24, #f59e0b); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: #000;">${name.charAt(0)}</div>
+                            <div>
+                                <strong style="color: white; font-size: 1.15rem;">${name}</strong>
+                                <small style="display: block; color: var(--text-muted);">${studentGoals.length} meta(s) ativa(s)</small>
+                            </div>
+                        </div>
+                        <div style="display: grid; gap: 1rem;">`;
+
+                studentGoals.forEach(g => {
+                    const today = new Date().toISOString().split('T')[0];
+                    const completedToday = g.completions && g.completions.includes(today);
+                    const totalCompletions = (g.completions || []).length;
+
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 1.2rem 1.5rem; border-radius: 16px; border: 1px solid var(--glass-border); transition: all 0.3s;" onmouseover="this.style.borderColor='${typeColors[g.type]}'" onmouseout="this.style.borderColor='var(--glass-border)'">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem;">
+                                    <span style="font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 8px; background: ${typeColors[g.type]}22; color: ${typeColors[g.type]}; font-weight: 800; letter-spacing: 0.5px;">${typeLabels[g.type]}</span>
+                                    ${completedToday ? '<span style="font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 8px; background: rgba(96,255,176,0.15); color: #60ffb0; font-weight: 800;">✅ Cumprida Hoje</span>' : ''}
+                                </div>
+                                <p style="color: white; font-weight: 600; font-size: 1.05rem; margin: 0.3rem 0;">${g.description}</p>
+                                <small style="color: var(--text-muted);">Vezes cumprida: ${totalCompletions}</small>
+                            </div>
+                            <button class="circle-btn delete" onclick="deleteGoal('${g._id || g.id}')" title="Excluir meta" style="width: 38px; height: 38px; font-size: 1rem;">🗑️</button>
+                        </div>`;
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function addGoal(e) {
+            e.preventDefault();
+            const select = document.getElementById('goalStudentSelect');
+            const studentId = select.value;
+            const studentName = select.options[select.selectedIndex].dataset.name;
+            const description = document.getElementById('goalDescription').value;
+            const type = document.getElementById('goalType').value;
+
+            try {
+                const res = await fetch(`${API_URL}/goals`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId, studentName, description, type })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Meta Criada!', `Meta "${description}" atribuída para ${studentName}.`);
+                    closeModal('modalAddGoal');
+                    document.getElementById('goalDescription').value = '';
+                    loadData();
+                    // Muda para aba metas
+                    switchTab('goals', document.querySelector('.tab-btn[onclick*="goals"]'));
+                } else {
+                    showToast('Erro', data.error || 'Erro ao criar meta.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Erro', 'Falha na conexão.', 'error');
+            }
+        }
+
+        async function deleteGoal(id) {
+            if (!confirm('Excluir esta meta?')) return;
+            try {
+                await fetch(`${API_URL}/goals/${id}`, { method: 'DELETE' });
+                showToast('Meta Excluída', 'A meta foi removida com sucesso.');
+                loadData();
+                renderGoals();
+            } catch (err) {
+                console.error(err);
+                showToast('Erro', 'Falha ao excluir meta.', 'error');
+            }
+        }
+
+        window.populateGoalSelects = populateGoalSelects;
+        window.renderGoals = renderGoals;
+        window.addGoal = addGoal;
+        window.deleteGoal = deleteGoal;
 
         // INICIAR
         document.addEventListener('DOMContentLoaded', loadData);

@@ -416,6 +416,9 @@
         <button class="tab-btn" onclick="switchStudentTab('atividades', this)">
             Atividades <span class="notification-dot" id="dot-atividades"></span>
         </button>
+        <button class="tab-btn" onclick="switchStudentTab('metas', this)">
+            🎯 Metas <span class="notification-dot" id="dot-metas"></span>
+        </button>
     </div>
 
     <div id="tab-estudos" class="tab-content active" style="margin-top: 4rem;">
@@ -452,6 +455,19 @@
                 id="actCount">0 pendentes</span>
         </div>
         <div class="video-grid" id="studentActivityGrid"></div>
+    </div>
+
+    <!-- ABA METAS -->
+    <div id="tab-metas" class="tab-content" style="margin-top: 4rem; margin-bottom: 8rem;">
+        <div
+            style="text-align: center; margin-bottom: 3rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1.5rem;">
+            <h2 style="font-family: var(--font-display); font-size: 2.5rem; color: white; margin-bottom: 0.5rem;">Minhas
+                Metas</h2>
+            <span
+                style="color: var(--text-secondary); font-weight: 700; background: rgba(255,255,255,0.03); padding: 0.5rem 1.2rem; border-radius: 12px; display: inline-block;"
+                id="goalCount">0 metas</span>
+        </div>
+        <div id="studentGoalsGrid" style="display: grid; gap: 1.5rem;"></div>
     </div>
     </div>
 
@@ -514,17 +530,25 @@
                 const students = data.students || [];
                 const contents = data.contents || [];
                 const reports = data.reports || [];
-                const activities = data.activities || []; // Agora pega da API
+                const activities = data.activities || [];
 
                 const activity_results = data.activity_results || [];
+                const goals = data.goals || [];
 
-                const email = localStorage.getItem('lastLoginEmail');
-                if (!email) { window.location.href = 'index.html'; return; }
+                const studentId = localStorage.getItem('loggedStudentId');
+                const studentName = localStorage.getItem('lastLoginName');
+                const studentEmail = localStorage.getItem('lastLoginEmail');
+
+                // Se não tem nenhum identificador salvo, volta pro login
+                if (!studentId && !studentName && !studentEmail) {
+                    window.location.href = 'index.html';
+                    return;
+                }
 
                 // Disponibiliza activities globalmente para o quiz funcionar
                 window.globalActivities = activities;
 
-                renderProfile(email, students, reports, contents, activities, activity_results);
+                renderProfile(studentId, studentName, studentEmail, students, reports, contents, activities, activity_results, goals);
             } catch (e) {
                 console.error(e);
             }
@@ -539,8 +563,16 @@
         let globalContents = [];
         let globalReports = [];
 
-        function renderProfile(email, students, reports, contents, activities, activity_results) {
-            const student = students.find(s => s.email === email);
+        let globalGoals = [];
+
+        function renderProfile(studentId, studentName, studentEmail, students, reports, contents, activities, activity_results, goals) {
+            // Busca aluno por ID, nome ou email
+            const student = students.find(s => {
+                if (studentId && (String(s._id) === String(studentId) || String(s.id) === String(studentId))) return true;
+                if (studentName && s.name && s.name.toLowerCase() === studentName.toLowerCase()) return true;
+                if (studentEmail && s.email && s.email.toLowerCase() === studentEmail.toLowerCase()) return true;
+                return false;
+            });
             if (!student) { window.location.href = 'index.html'; return; }
 
             currentStudent = student;
@@ -705,6 +737,12 @@
             // E corrigir o BUG CRÍTICO do switchStudentTab lendo localStorage.
 
             checkNotifications(myContents.length, myReports.length, myActivities.length);
+
+            // --- METAS ---
+            globalGoals = goals;
+            const myGoals = goals.filter(g => String(g.studentId) === String(student._id) || String(g.studentId) === String(student.id));
+            document.getElementById('goalCount').innerText = `${myGoals.length} meta(s)`;
+            renderStudentGoals(myGoals);
         }
 
         function viewStudentResult(actId) {
@@ -797,8 +835,8 @@
         }
 
         function checkNotifications(vLen, rLen, aLen) {
-            const email = localStorage.getItem('lastLoginEmail');
-            const storageKey = `seen_${email}`;
+            const identifier = localStorage.getItem('loggedStudentId') || localStorage.getItem('lastLoginName') || localStorage.getItem('lastLoginEmail') || 'unknown';
+            const storageKey = `seen_${identifier}`;
             const seen = JSON.parse(localStorage.getItem(storageKey) || '{"v":0, "r":0, "a":0}');
 
             let hasNew = false;
@@ -853,9 +891,175 @@
                 seen.a = aLen;
                 document.getElementById('dot-atividades').style.display = 'none';
             }
+            if (tabId === 'metas') {
+                document.getElementById('dot-metas').style.display = 'none';
+            }
 
             localStorage.setItem(storageKey, JSON.stringify(seen));
         }
+
+        // --- FUNÇÕES DE METAS DO ALUNO ---
+        function renderStudentGoals(myGoals) {
+            const grid = document.getElementById('studentGoalsGrid');
+
+            if (!myGoals.length) {
+                grid.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                        <p style="font-size: 1.1rem; color: var(--text-secondary);">Nenhuma meta atribuída ainda.</p>
+                        <small style="color: var(--text-muted);">Seu professor pode criar metas para você.</small>
+                    </div>`;
+                return;
+            }
+
+            const typeLabels = { 'daily': 'Diária', 'weekly': 'Semanal', 'monthly': 'Mensal' };
+            const typeIcons = { 'daily': '📅', 'weekly': '📆', 'monthly': '🗓️' };
+            const typeColors = { 'daily': '#fbbf24', 'weekly': '#a760ff', 'monthly': '#ec4899' };
+
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            function isCompletedForPeriod(goal) {
+                const completions = goal.completions || [];
+                if (goal.type === 'daily') return completions.includes(todayStr);
+                if (goal.type === 'weekly') {
+                    const d = new Date(today);
+                    const day = d.getDay();
+                    const weekStart = new Date(d);
+                    weekStart.setDate(d.getDate() - day + (day === 0 ? -6 : 1));
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    return completions.some(c => {
+                        const cd = new Date(c + 'T00:00:00');
+                        return cd >= weekStart && cd <= weekEnd;
+                    });
+                }
+                if (goal.type === 'monthly') {
+                    const monthKey = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+                    return completions.some(c => c.startsWith(monthKey));
+                }
+                return false;
+            }
+
+            // Conta dias cumpridos nesta semana (para metas diárias)
+            function getWeekProgress(goal) {
+                if (goal.type !== 'daily') return null;
+                const completions = goal.completions || [];
+                const d = new Date(today);
+                const day = d.getDay();
+                const weekStart = new Date(d);
+                weekStart.setDate(d.getDate() - day + (day === 0 ? -6 : 1));
+                let count = 0;
+                for (let i = 0; i < 7; i++) {
+                    const checkDate = new Date(weekStart);
+                    checkDate.setDate(weekStart.getDate() + i);
+                    const dateStr = checkDate.toISOString().split('T')[0];
+                    if (completions.includes(dateStr)) count++;
+                }
+                return count;
+            }
+
+            grid.innerHTML = myGoals.map(g => {
+                const completed = isCompletedForPeriod(g);
+                const totalCompletions = (g.completions || []).length;
+                const periodLabel = g.type === 'daily' ? 'hoje' : g.type === 'weekly' ? 'esta semana' : 'este mês';
+                const weekProgress = getWeekProgress(g);
+
+                const checkSvg = completed
+                    ? `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60ffb0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+                    : `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+                // Barra de progresso semanal para metas diárias
+                let progressBar = '';
+                if (weekProgress !== null) {
+                    const pct = Math.round((weekProgress / 7) * 100);
+                    const days = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
+                    const d = new Date(today);
+                    const day = d.getDay();
+                    const weekStart = new Date(d);
+                    weekStart.setDate(d.getDate() - day + (day === 0 ? -6 : 1));
+
+                    let dotsHtml = '';
+                    for (let i = 0; i < 7; i++) {
+                        const checkDate = new Date(weekStart);
+                        checkDate.setDate(weekStart.getDate() + i);
+                        const dateStr = checkDate.toISOString().split('T')[0];
+                        const isDone = (g.completions || []).includes(dateStr);
+                        const isToday = dateStr === todayStr;
+                        dotsHtml += `<div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
+                            <div style="width: 28px; height: 28px; border-radius: 50%; background: ${isDone ? '#60ffb0' : 'rgba(255,255,255,0.05)'}; border: 2px solid ${isToday ? '#fbbf24' : isDone ? '#60ffb0' : 'rgba(255,255,255,0.1)'}; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: ${isDone ? '#000' : 'var(--text-muted)'}; font-weight: 800; transition: all 0.3s;">${isDone ? '✓' : ''}</div>
+                            <span style="font-size: 0.65rem; color: ${isToday ? '#fbbf24' : 'var(--text-muted)'}; font-weight: ${isToday ? '800' : '600'};">${days[i]}</span>
+                        </div>`;
+                    }
+                    progressBar = `
+                        <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                                <small style="color: var(--text-muted); font-weight: 700;">Progresso da semana</small>
+                                <small style="color: ${pct >= 70 ? '#60ffb0' : pct >= 40 ? '#fbbf24' : 'var(--text-muted)'}; font-weight: 800;">${weekProgress}/7 dias</small>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; justify-content: space-between;">${dotsHtml}</div>
+                        </div>`;
+                }
+
+                return `
+                    <div style="background: var(--bg-card); border: 1px solid ${completed ? 'rgba(96,255,176,0.3)' : 'var(--glass-border)'}; border-radius: 24px; padding: 0; box-shadow: var(--card-shadow); transition: all 0.4s; overflow: hidden;">
+                        <div style="display: flex; align-items: stretch;">
+                            <!-- Barra lateral colorida -->
+                            <div style="width: 5px; background: ${completed ? '#60ffb0' : typeColors[g.type]};"></div>
+                            <div style="flex: 1; padding: 1.8rem 2rem;">
+                                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem;">
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; flex-wrap: wrap;">
+                                            <span style="font-size: 0.7rem; padding: 0.25rem 0.7rem; border-radius: 8px; background: ${typeColors[g.type]}18; color: ${typeColors[g.type]}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">${typeIcons[g.type]} ${typeLabels[g.type]}</span>
+                                            ${completed
+                        ? `<span style="font-size: 0.7rem; padding: 0.25rem 0.7rem; border-radius: 8px; background: rgba(96,255,176,0.12); color: #60ffb0; font-weight: 800;">Feito ${periodLabel}</span>`
+                        : `<span style="font-size: 0.7rem; padding: 0.25rem 0.7rem; border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-muted); font-weight: 700;">Pendente</span>`}
+                                        </div>
+                                        <h3 style="color: white; font-family: var(--font-display); font-size: 1.2rem; margin: 0.4rem 0; letter-spacing: -0.3px;">${g.description}</h3>
+                                        <small style="color: var(--text-muted); font-size: 0.8rem;">Total cumprido: <strong style="color: var(--primary-purple-light);">${totalCompletions}×</strong></small>
+                                    </div>
+                                    <!-- Botão Check Premium -->
+                                    <button onclick="toggleGoalCompletion('${g._id || g.id}', ${completed})" 
+                                        style="min-width: 52px; width: 52px; height: 52px; border-radius: 16px; border: 2px solid ${completed ? '#60ffb0' : 'rgba(255,255,255,0.12)'}; background: ${completed ? 'rgba(96,255,176,0.12)' : 'rgba(255,255,255,0.02)'}; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); flex-shrink: 0;" 
+                                        onmouseover="this.style.transform='scale(1.12)'; this.style.borderColor='${completed ? '#60ffb0' : '#fbbf24'}'; this.style.boxShadow='0 0 20px ${completed ? 'rgba(96,255,176,0.2)' : 'rgba(251,191,36,0.2)'}'" 
+                                        onmouseout="this.style.transform='scale(1)'; this.style.borderColor='${completed ? '#60ffb0' : 'rgba(255,255,255,0.12)'}'; this.style.boxShadow='none'"
+                                        title="${completed ? 'Desmarcar meta' : 'Marcar como cumprida'}">
+                                        ${checkSvg}
+                                    </button>
+                                </div>
+                                ${progressBar}
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        async function toggleGoalCompletion(goalId, isCurrentlyCompleted) {
+            const today = new Date().toISOString().split('T')[0];
+            try {
+                const res = await fetch(`${API_URL}/goals/${goalId}/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: today })
+                });
+                if (res.ok) {
+                    if (!isCurrentlyCompleted) {
+                        showToast('Meta Cumprida! 🎉', 'Parabéns! Continue assim!', '🎯', '#60ffb0');
+                    } else {
+                        showToast('Meta Desmarcada', 'A marcação foi removida.', '↩️', '#fbbf24');
+                    }
+                    // Recarregar dados
+                    loadData();
+                } else {
+                    showToast('Erro', 'Não foi possível atualizar a meta.', '❌', '#ff6060');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Erro', 'Falha na conexão.', '❌', '#ff6060');
+            }
+        }
+
+        window.toggleGoalCompletion = toggleGoalCompletion;
 
         let currentQuiz = null;
         let quizAnswers = [];

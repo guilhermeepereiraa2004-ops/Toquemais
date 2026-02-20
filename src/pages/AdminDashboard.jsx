@@ -260,14 +260,19 @@ function AdminDashboard() {
         e.preventDefault()
         const formData = new FormData(e.target)
 
+        const emailValue = formData.get('email')?.trim()
         const newStudent = {
             name: formData.get('name'),
-            email: formData.get('email'),
             password: formData.get('pass'),
             level: formData.get('level'),
             nextPayment: formData.get('payment'),
             status: 'active',
             nextLesson: 'A definir'
+        }
+
+        // Só inclui email se foi preenchido
+        if (emailValue) {
+            newStudent.email = emailValue
         }
 
         try {
@@ -280,9 +285,10 @@ function AdminDashboard() {
             const data = await response.json();
 
             if (response.ok) {
-                setStudents([...students, data.student]);
+                setStudents([...students, data]);
                 setShowAddStudentModal(false);
                 addToast('Aluno cadastrado com sucesso!', 'success');
+                fetchData();
             } else {
                 addToast(data.error || 'Erro ao cadastrar aluno', 'error');
             }
@@ -518,8 +524,12 @@ function AdminDashboard() {
                     <div className="modal-content card" onClick={e => e.stopPropagation()}>
                         <h2>Cadastrar Novo Aluno</h2>
                         <form className="upload-form" onSubmit={handleAddStudent}>
-                            <div className="form-group"><label>Nome Completo</label><input name="name" className="form-input" required /></div>
-                            <div className="form-group"><label>E-mail</label><input name="email" type="email" className="form-input" required /></div>
+                            <div className="form-group"><label>Nome Completo</label><input name="name" className="form-input" required placeholder="Nome do aluno" /></div>
+                            <div className="form-group">
+                                <label>E-mail <small style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(opcional)</small></label>
+                                <input name="email" type="email" className="form-input" placeholder="Deixe vazio para alunos sem email" />
+                                <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.3rem' }}>💡 Alunos sem email poderão fazer login usando o nome</small>
+                            </div>
                             <div className="form-group">
                                 <label>Nível</label>
                                 <select name="level" className="form-select">
@@ -530,7 +540,7 @@ function AdminDashboard() {
                                 </select>
                             </div>
                             <div className="form-group"><label>Data de Pagamento</label><input name="payment" type="date" className="form-input" required /></div>
-                            <div className="form-group"><label>Senha Provisória</label><input type="password" name="pass" className="form-input" required /></div>
+                            <div className="form-group"><label>Senha</label><input type="password" name="pass" className="form-input" required placeholder="Senha para o aluno acessar" /></div>
                             <div className="modal-actions">
                                 <button type="button" className="btn btn-outline" onClick={() => setShowAddStudentModal(false)}>Cancelar</button>
                                 <button type="submit" className="btn btn-primary">Criar Conta</button>
