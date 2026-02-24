@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useToast } from '../context/ToastContext'
 import './AdminDashboard.css'
 
@@ -20,6 +20,48 @@ function AdminDashboard() {
     const [editingContent, setEditingContent] = useState(null)
     const [selectedRecipients, setSelectedRecipients] = useState(['all'])
     const API_URL = "http://localhost:3001"
+
+    // --- TAREFAS (armazenadas em localStorage) ---
+    const [tasks, setTasks] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('adminTasks')) || [] } catch { return [] }
+    })
+    const [newTaskText, setNewTaskText] = useState('')
+    const [taskFilter, setTaskFilter] = useState('all') // all | pending | done
+    const taskInputRef = useRef(null)
+
+    useEffect(() => {
+        localStorage.setItem('adminTasks', JSON.stringify(tasks))
+    }, [tasks])
+
+    const handleAddTask = (e) => {
+        e.preventDefault()
+        const text = newTaskText.trim()
+        if (!text) return
+        const task = { id: Date.now(), text, done: false, createdAt: new Date().toISOString() }
+        setTasks(prev => [task, ...prev])
+        setNewTaskText('')
+        taskInputRef.current?.focus()
+    }
+
+    const handleToggleTask = (id) => {
+        setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
+    }
+
+    const handleDeleteTask = (id) => {
+        setTasks(prev => prev.filter(t => t.id !== id))
+    }
+
+    const handleClearDone = () => {
+        setTasks(prev => prev.filter(t => !t.done))
+    }
+
+    const filteredTasks = tasks.filter(t => {
+        if (taskFilter === 'pending') return !t.done
+        if (taskFilter === 'done') return t.done
+        return true
+    })
+    const pendingCount = tasks.filter(t => !t.done).length
+    const doneCount = tasks.filter(t => t.done).length
 
     const fetchData = async () => {
         try {
@@ -343,6 +385,10 @@ function AdminDashboard() {
                     <button className={`tab-button ${activeTab === 'activities' ? 'active' : ''}`} onClick={() => setActiveTab('activities')}>Atividades</button>
                     <button className={`tab-button ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>Relatórios</button>
                     <button className={`tab-button ${activeTab === 'finance' ? 'active' : ''}`} onClick={() => setActiveTab('finance')}>Financeiro</button>
+                    <button className={`tab-button ${activeTab === 'tasks' ? 'active' : ''}`} onClick={() => setActiveTab('tasks')} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        Minhas Tarefas
+                        {pendingCount > 0 && <span style={{ background: 'var(--accent)', color: 'white', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700', padding: '1px 7px', minWidth: '20px', textAlign: 'center' }}>{pendingCount}</span>}
+                    </button>
                 </div>
 
                 {/* Tab Content */}
@@ -512,6 +558,79 @@ function AdminDashboard() {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MINHAS TAREFAS */}
+                    {activeTab === 'tasks' && (
+                        <div className="tasks-section">
+                            {/* Adicionar tarefa */}
+                            <form onSubmit={handleAddTask} className="task-add-form">
+                                <input
+                                    ref={taskInputRef}
+                                    className="form-input"
+                                    placeholder="Nova tarefa... (ex: Corrigir atividades da turma)"
+                                    value={newTaskText}
+                                    onChange={e => setNewTaskText(e.target.value)}
+                                    autoFocus
+                                />
+                                <button type="submit" className="btn btn-primary" disabled={!newTaskText.trim()}>+ Adicionar</button>
+                            </form>
+
+                            {/* Filtros + limpar concluídas */}
+                            <div className="task-controls">
+                                <div className="task-filters">
+                                    {[['all', 'Todas'], ['pending', 'Pendentes'], ['done', 'Concluídas']].map(([val, label]) => (
+                                        <button
+                                            key={val}
+                                            className={`task-filter-btn ${taskFilter === val ? 'active' : ''}`}
+                                            onClick={() => setTaskFilter(val)}
+                                        >
+                                            {label}
+                                            {val === 'pending' && pendingCount > 0 && ` (${pendingCount})`}
+                                            {val === 'done' && doneCount > 0 && ` (${doneCount})`}
+                                        </button>
+                                    ))}
+                                </div>
+                                {doneCount > 0 && (
+                                    <button className="btn btn-outline btn-sm" onClick={handleClearDone} style={{ color: 'var(--error)' }}>
+                                        🗑️ Limpar concluídas
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Lista de tarefas */}
+                            <div className="task-list">
+                                {filteredTasks.length === 0 ? (
+                                    <div className="task-empty">
+                                        <span style={{ fontSize: '3rem' }}>{taskFilter === 'done' ? '🎉' : '✅'}</span>
+                                        <p>{taskFilter === 'done' ? 'Nenhuma tarefa concluída ainda.' : 'Nenhuma tarefa pendente. Tudo em dia!'}</p>
+                                    </div>
+                                ) : (
+                                    filteredTasks.map(task => (
+                                        <div key={task.id} className={`task-item card ${task.done ? 'task-done' : ''}`}>
+                                            <button
+                                                className={`task-checkbox ${task.done ? 'checked' : ''}`}
+                                                onClick={() => handleToggleTask(task.id)}
+                                                title={task.done ? 'Marcar como pendente' : 'Marcar como concluída'}
+                                            >
+                                                {task.done ? '✓' : ''}
+                                            </button>
+                                            <div className="task-content">
+                                                <p className="task-text">{task.text}</p>
+                                                <span className="task-date">
+                                                    {new Date(task.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                            <button
+                                                className="task-delete"
+                                                onClick={() => handleDeleteTask(task.id)}
+                                                title="Excluir tarefa"
+                                            >✕</button>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}

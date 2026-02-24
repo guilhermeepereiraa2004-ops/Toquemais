@@ -707,3 +707,210 @@
         justify-content: space-between;
     }
 }
+
+/* =============================================
+   MINHAS TAREFAS
+   ============================================= */
+.tasks-section {
+    max-width: 780px;
+    margin: 0 auto;
+    animation: fadeIn 0.35s ease-out;
+}
+
+.task-add-form {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.task-add-form .form-input {
+    flex: 1;
+    font-size: 1rem;
+}
+
+.task-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.task-filters {
+    display: flex;
+    gap: var(--spacing-xs);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-full);
+    padding: 4px;
+}
+
+.task-filter-btn {
+    padding: 0.4rem 1.1rem;
+    border-radius: var(--radius-full);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.task-filter-btn:hover {
+    color: var(--text-primary);
+}
+
+.task-filter-btn.active {
+    background: var(--primary-purple);
+    color: white;
+    box-shadow: 0 2px 10px rgba(167, 96, 255, 0.35);
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    transition: all 0.25s ease;
+    border-left: 3px solid transparent;
+}
+
+.task-item:hover {
+    border-left-color: var(--primary-purple);
+    transform: translateX(4px);
+}
+
+.task-item.task-done {
+    opacity: 0.55;
+    border-left-color: rgba(96, 255, 176, 0.4);
+}
+
+.task-item.task-done:hover {
+    opacity: 0.75;
+    border-left-color: rgba(96, 255, 176, 0.7);
+}
+
+.task-checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(167, 96, 255, 0.4);
+    background: transparent;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.task-checkbox:hover {
+    border-color: var(--primary-purple);
+    background: rgba(167, 96, 255, 0.15);
+    transform: scale(1.1);
+}
+
+.task-checkbox.checked {
+    background: linear-gradient(135deg, #60FFB0, #30d890);
+    border-color: #60FFB0;
+    box-shadow: 0 0 10px rgba(96, 255, 176, 0.4);
+}
+
+.task-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.task-text {
+    margin: 0;
+    font-size: 0.975rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    word-break: break-word;
+    transition: all 0.2s;
+}
+
+.task-done .task-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.task-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.task-delete {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-item:hover .task-delete {
+    opacity: 1;
+}
+
+.task-delete:hover {
+    background: rgba(255, 96, 96, 0.15);
+    border-color: rgba(255, 96, 96, 0.3);
+    color: #ff6060;
+    transform: scale(1.1);
+}
+
+.task-empty {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.task-empty p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+    .task-add-form {
+        flex-direction: column;
+    }
+
+    .task-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .task-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

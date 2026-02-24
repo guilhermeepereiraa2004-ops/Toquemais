@@ -327,9 +327,15 @@
             <button class="tab-btn active" onclick="switchTab('students', this)">Estudantes</button>
             <button class="tab-btn" onclick="switchTab('content', this)">Materiais</button>
             <button class="tab-btn" onclick="switchTab('activities', this)">Atividades</button>
-            <button class="tab-btn" onclick="switchTab('goals', this)">🎯Metas</button>
+            <button class="tab-btn" onclick="switchTab('goals', this)">Metas</button>
             <button class="tab-btn" onclick="switchTab('finance', this)">Financeiro</button>
             <button class="tab-btn" onclick="switchTab('reports', this)">Histórico</button>
+            <button class="tab-btn" id="taskTabBtn" onclick="switchTab('tasks', this)"
+                style="display:flex;align-items:center;gap:0.5rem;">
+                Minhas Tarefas
+                <span id="taskBadge"
+                    style="display:none;background:var(--primary-purple,#a760ff);color:white;border-radius:999px;font-size:0.7rem;font-weight:700;padding:1px 8px;"></span>
+            </button>
         </div>
 
         <!-- ABA ALUNOS -->
@@ -405,6 +411,46 @@
 
         <div id="tab-reports" class="tab-content">
             <div style="display: grid; gap: 1.5rem;" id="reportsList"></div>
+        </div>
+
+        <!-- ABA MINHAS TAREFAS -->
+        <div id="tab-tasks" class="tab-content">
+            <div style="max-width:750px;margin:0 auto;">
+                <!-- Header -->
+                <div style="margin-bottom:2rem;">
+                    <h2 style="font-family:var(--font-display);font-size:2rem;color:white;margin:0;">Minhas Tarefas
+                    </h2>
+                    <p style="color:var(--text-secondary);margin-top:0.3rem;">Organize e acompanhe suas pendências do
+                        dia a dia</p>
+                </div>
+
+                <!-- Formulário de adicionar -->
+                <form id="taskForm" onsubmit="addTask(event)" style="display:flex;gap:1rem;margin-bottom:1.5rem;">
+                    <input id="taskInput" type="text" class="form-input"
+                        placeholder="Nova tarefa... (ex: Corrigir atividades da turma)" style="flex:1;font-size:1rem;"
+                        required autocomplete="off" />
+                    <button type="submit" class="btn btn-primary"
+                        style="width:auto;padding:0.8rem 1.8rem;border-radius:14px;white-space:nowrap;">+
+                        Adicionar</button>
+                </form>
+
+                <!-- Filtros e limpar -->
+                <div
+                    style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+                    <div id="taskFilters"
+                        style="display:flex;gap:4px;background:rgba(255,255,255,0.04);border-radius:999px;padding:4px;">
+                        <button class="task-filter-btn active" onclick="setTaskFilter('all',this)">Todas</button>
+                        <button class="task-filter-btn" onclick="setTaskFilter('pending',this)">Pendentes</button>
+                        <button class="task-filter-btn" onclick="setTaskFilter('done',this)">Concluídas</button>
+                    </div>
+                    <button id="btnClearDone" onclick="clearDoneTasks()"
+                        style="display:none;background:transparent;border:1px solid rgba(255,96,96,0.3);color:#ff6060;border-radius:12px;padding:0.5rem 1.2rem;cursor:pointer;font-size:0.85rem;font-weight:600;">🗑️
+                        Limpar concluídas</button>
+                </div>
+
+                <!-- Lista de tarefas -->
+                <div id="taskList"></div>
+            </div>
         </div>
     </div>
 
@@ -1653,11 +1699,239 @@
         window.addGoal = addGoal;
         window.deleteGoal = deleteGoal;
 
-        // INICIAR
-        document.addEventListener('DOMContentLoaded', loadData);
-    </script>
-</body>
+        // =============================================
+        // MINHAS TAREFAS
+        // =============================================
+        let allTasks = [];
+        let currentTaskFilter = 'all';
 
-</html>
+        function loadTasks() {
+            try { allTasks = JSON.parse(localStorage.getItem('adminTasks')) || []; } catch { allTasks = []; }
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('adminTasks', JSON.stringify(allTasks));
+            updateTaskBadge();
+        }
+
+        function updateTaskBadge() {
+            const pending = allTasks.filter(t => !t.done).length;
+            const badge = document.getElementById('taskBadge');
+            if (badge) {
+                badge.textContent = pending;
+                badge.style.display = pending > 0 ? 'inline-block' : 'none';
+            }
+        }
+
+        function addTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (!text) return;
+            allTasks.unshift({ id: Date.now(), text, done: false, createdAt: new Date().toISOString() });
+            saveTasks();
+            renderTasks();
+            input.value = '';
+            input.focus();
+        }
+
+        function toggleTask(id) {
+            allTasks = allTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+            saveTasks();
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            allTasks = allTasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function clearDoneTasks() {
+            allTasks = allTasks.filter(t => !t.done);
+            saveTasks();
+            renderTasks();
+        }
+
+        function setTaskFilter(filter, btn) {
+            currentTaskFilter = filter;
+            document.querySelectorAll('.task-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            const clearBtn = document.getElementById('btnClearDone');
+            if (!list) return;
+
+            const filtered = allTasks.filter(t => {
+                if (currentTaskFilter === 'pending') return !t.done;
+                if (currentTaskFilter === 'done') return t.done;
+                return true;
+            });
+
+            const doneCount = allTasks.filter(t => t.done).length;
+            if (clearBtn) clearBtn.style.display = doneCount > 0 ? 'inline-block' : 'none';
+
+            if (filtered.length === 0) {
+                const msg = currentTaskFilter === 'done' ? '🎉 Nenhuma tarefa concluída ainda.' : '✅ Nenhuma tarefa pendente. Tudo em dia!';
+                list.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--text-muted);opacity:0.7;">
+                    <div style="font-size:3rem;margin-bottom:1rem;">${currentTaskFilter === 'done' ? '🎉' : '✅'}</div>
+                    <p style="margin:0;font-size:1rem;">${currentTaskFilter === 'done' ? 'Nenhuma tarefa concluída ainda.' : 'Nenhuma tarefa pendente. Tudo em dia!'}</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(task => {
+                const date = new Date(task.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                return `
+                <div class="task-item-html ${task.done ? 'task-done-html' : ''}" id="task-${task.id}">
+                    <button class="task-cb-html ${task.done ? 'task-cb-checked' : ''}" onclick="toggleTask(${task.id})" title="${task.done ? 'Marcar como pendente' : 'Marcar como concluída'}">
+                        ${task.done ? '✓' : ''}
+                    </button>
+                    <div style="flex:1;min-width:0;">
+                        <p class="task-text-html ${task.done ? 'task-text-done' : ''}">${task.text}</p>
+                        <span style="font-size:0.75rem;color:var(--text-muted);opacity:0.7;">${date}</span>
+                    </div>
+                    <button class="task-del-html" onclick="deleteTask(${task.id})" title="Excluir">✕</button>
+                </div>`;
+            }).join('');
+        }
+
+        window.addTask = addTask;
+        window.toggleTask = toggleTask;
+        window.deleteTask = deleteTask;
+        window.clearDoneTasks = clearDoneTasks;
+        window.setTaskFilter = setTaskFilter;
+
+        // INICIAR
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            loadTasks();
+        });
+    </script>
+
+    <style>
+        /* Task styles */
+        .task-filter-btn {
+            padding: 0.4rem 1.1rem;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .task-filter-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .task-filter-btn.active {
+            background: var(--primary-purple, #a760ff);
+            color: white;
+        }
+
+        .task-item-html {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            border-left: 3px solid transparent;
+            margin-bottom: 0.6rem;
+            transition: all 0.2s;
+        }
+
+        .task-item-html:hover {
+            border-left-color: var(--primary-purple, #a760ff);
+            transform: translateX(4px);
+        }
+
+        .task-done-html {
+            opacity: 0.55;
+            border-left-color: rgba(96, 255, 176, 0.4) !important;
+        }
+
+        .task-done-html:hover {
+            opacity: 0.75 !important;
+        }
+
+        .task-cb-html {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid rgba(167, 96, 255, 0.4);
+            background: transparent;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .task-cb-html:hover {
+            border-color: var(--primary-purple, #a760ff);
+            background: rgba(167, 96, 255, 0.15);
+            transform: scale(1.1);
+        }
+
+        .task-cb-checked {
+            background: linear-gradient(135deg, #60FFB0, #30d890) !important;
+            border-color: #60FFB0 !important;
+            box-shadow: 0 0 10px rgba(96, 255, 176, 0.4);
+        }
+
+        .task-text-html {
+            margin: 0 0 2px;
+            font-size: 0.975rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .task-text-done {
+            text-decoration: line-through;
+            color: var(--text-muted) !important;
+        }
+
+        .task-del-html {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-item-html:hover .task-del-html {
+            opacity: 1;
+        }
+
+        .task-del-html:hover {
+            background: rgba(255, 96, 96, 0.15);
+            border-color: rgba(255, 96, 96, 0.3);
+            color: #ff6060;
+        }
+    </style>
+</body>
 
 </html>
