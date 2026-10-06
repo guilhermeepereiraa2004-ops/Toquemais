@@ -33,6 +33,13 @@
     justify-content: center;
 }
 
+.logo-icon img {
+    width: 44px;
+    height: 44px;
+    display: block;
+    object-fit: contain;
+}
+
 .logo-text {
     font-family: var(--font-display);
     font-size: 1.75rem;

@@ -44,3 +44,10 @@
     font-size: 0.95rem;
     margin-bottom: 0;
 }
+
+.app-logo-mark {
+    width: 52px;
+    height: 52px;
+    display: block;
+    object-fit: contain;
+}

@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toquemais | Área de Treinamento</title>
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23a760ff;stop-opacity:1%22 /><stop offset=%22100%25%22 style=%22stop-color:%23ec4899;stop-opacity:1%22 /></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22 /><text y=%22.9em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2270%22 font-family=%22sans-serif%22 font-weight=%22800%22 fill=%22white%22>T+</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -453,23 +453,14 @@
         }
 
         .student-brand-mark {
-            width: 40px;
-            height: 40px;
-            display: grid;
-            place-items: center;
-            border-radius: 13px;
-            color: #fff;
-            background: var(--primary-purple);
-            box-shadow: 0 8px 20px rgba(36, 55, 233, .22);
-        }
-
-        .student-brand-mark svg {
-            width: 27px;
-            height: 27px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 3;
-            stroke-linecap: round;
+            width: 46px;
+            height: 46px;
+            display: block;
+            object-fit: contain;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
         }
 
         .student-page .logo-title {
@@ -838,7 +829,7 @@
             .student-page .top-logo { height: 68px; }
             .student-page .admin-dashboard { padding-top: 88px; }
             .student-page .logo-title { font-size: 1.45rem; }
-            .student-brand-mark { width: 36px; height: 36px; border-radius: 11px; }
+            .student-brand-mark { width: 42px; height: 42px; border-radius: 0; }
             .logout-button { min-height: 38px; padding: .55rem .7rem !important; }
             .logout-button span { display: none; }
 
@@ -919,9 +910,7 @@
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="student-brand" onclick="window.location.href='index.html'" role="link" tabindex="0"
                 onkeydown="if(event.key === 'Enter') window.location.href='index.html'" aria-label="Toque Mais">
-                <span class="student-brand-mark" aria-hidden="true">
-                    <svg viewBox="0 0 40 40"><path d="M12 25.5V14.5M18 30V10M24 26.5V13.5M30 23V17" /></svg>
-                </span>
+                <img class="student-brand-mark" src="/logo-mark.svg" alt="" aria-hidden="true">
                 <h1 class="logo-title">toque<span class="logo-plus">+</span></h1>
             </div>
             <button class="btn btn-secondary logout-button" onclick="window.location.href='index.html'" aria-label="Sair da plataforma">

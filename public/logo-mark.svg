@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Toque Mais</title>
+  <defs>
+    <linearGradient id="blue" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3041ff"/>
+      <stop offset="1" stop-color="#2434e8"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#2437e9" flood-opacity=".24"/>
+    </filter>
+  </defs>
+  <rect x="7" y="6" width="50" height="50" rx="15" fill="url(#blue)" filter="url(#shadow)"/>
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+    <path d="M22 29v6"/>
+    <path d="M27 25v14"/>
+    <path d="M32 22v20"/>
+    <path d="M37 27v10"/>
+    <path d="M42 30v4"/>
+  </g>
+</svg>
