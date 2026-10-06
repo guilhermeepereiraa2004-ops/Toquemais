@@ -96,35 +96,40 @@ body {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle at top right, rgba(167, 96, 255, 0.12), transparent 600px),
-        radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.08), transparent 600px),
-        var(--bg-dark);
+    justify-content: center; /* Centraliza o conteúdo horizontalmente */
+    padding: 1rem;
+    background:
+        linear-gradient(rgba(10, 10, 12, 0.7), rgba(10, 10, 12, 0.7)),
+        url('close-up-man-hand-playing-guitar.jpg') no-repeat center center/cover;
+    position: relative;
 }
 
 .card-glass {
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    padding: 3rem;
+    box-shadow: 0 35px 65px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .login-card {
     width: 100%;
-    max-width: 450px;
-    animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 480px;
+    z-index: 10;
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes slideUpFade {
+@keyframes slideRightFade {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateX(-40px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 }
 
@@ -185,20 +190,22 @@ body {
 .form-input,
 .form-select {
     width: 100%;
-    padding: 1rem 1.2rem;
-    background: var(--bg-input);
-    border: 1.5px solid var(--glass-border);
-    border-radius: 14px;
-    color: var(--text-primary);
+    padding: 1.1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: white;
     font-size: 1rem;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
 }
 
 .form-input:focus {
-    background: var(--bg-card);
-    border-color: var(--primary-purple);
-    box-shadow: 0 0 0 4px rgba(167, 96, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(167, 96, 255, 0.7);
+    box-shadow: 0 0 20px rgba(167, 96, 255, 0.25);
     outline: none;
+    transform: translateY(-2px);
 }
 
 /* ==================== DASHBOARD UTILS ==================== */
@@ -234,6 +241,31 @@ body {
 .badge-master {
     background: var(--gradient-primary);
     color: white;
+}
+
+.btn-play {
+    background: linear-gradient(135deg, #8b5cf6, #c026d3);
+    color: white !important;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn-play:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(192, 38, 211, 0.4);
+    color: white !important;
 }
 
 .card {
@@ -317,6 +349,24 @@ body {
     /* Typography Adjustments */
     html {
         font-size: 14px;
+    }
+
+    /* Login Page Mobile */
+    .login-page {
+        justify-content: center;
+        padding: 1rem;
+        background:
+            linear-gradient(to top, rgba(10, 10, 12, 1) 0%, rgba(10, 10, 12, 0.7) 40%, rgba(10, 10, 12, 0.4) 100%),
+            url('close-up-man-hand-playing-guitar.jpg') no-repeat center center/cover;
+    }
+
+    .container {
+        align-items: center !important;
+        margin: 0 auto !important;
+    }
+
+    .card-glass {
+        padding: 2rem 1.5rem;
     }
 
     /* Slightly smaller base for mobile */
@@ -454,4 +504,418 @@ body {
         left: 1rem;
         width: auto;
     }
+}
+
+/* ==================== TOQUE+ 2026 · LOGIN EXPERIENCE ==================== */
+.login-page {
+    --brand-blue: #2437e9;
+    --brand-blue-dark: #1726b8;
+    --brand-coral: #ff6b4a;
+    --brand-ink: #111630;
+    --brand-soft: #f4f6ff;
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background: var(--brand-soft);
+    color: var(--brand-ink);
+}
+
+.login-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(440px, 0.88fr);
+}
+
+.login-story {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    padding: clamp(2rem, 4vw, 4.5rem);
+    overflow: hidden;
+    color: #fff;
+    background: #0b1025 url('close-up-man-hand-playing-guitar.jpg') center 42% / cover no-repeat;
+}
+
+.login-story::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+        linear-gradient(90deg, rgba(7, 11, 31, .9) 0%, rgba(7, 11, 31, .62) 55%, rgba(7, 11, 31, .28) 100%),
+        linear-gradient(0deg, rgba(7, 11, 31, .84) 0%, transparent 48%);
+}
+
+.login-story::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    width: 460px;
+    height: 460px;
+    left: -180px;
+    bottom: -210px;
+    border: 84px solid rgba(255, 107, 74, .8);
+    border-radius: 50%;
+    opacity: .65;
+}
+
+.brand,
+.mobile-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .8rem;
+    width: max-content;
+    color: inherit;
+    text-decoration: none;
+}
+
+.brand-mark {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: #fff;
+    background: var(--brand-blue);
+    box-shadow: 0 10px 25px rgba(36, 55, 233, .3);
+}
+
+.brand-on-dark .brand-mark {
+    background: var(--brand-coral);
+    box-shadow: 0 10px 28px rgba(255, 107, 74, .28);
+}
+
+.brand-mark svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+.brand-name {
+    font: 800 1.75rem/1 var(--font-display);
+    letter-spacing: -1.2px;
+}
+
+.brand-name span { color: var(--brand-coral); }
+.brand-on-dark .brand-name span { color: #ff9a83; }
+
+.story-copy {
+    max-width: 680px;
+    padding: 5rem 0 2rem;
+}
+
+.story-kicker,
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.story-kicker::before {
+    content: '';
+    width: 28px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--brand-coral);
+}
+
+.story-copy h1 {
+    max-width: 650px;
+    margin: 1.2rem 0 1.35rem;
+    color: #fff;
+    font: 700 clamp(2.8rem, 5.2vw, 5.6rem)/.98 var(--font-display);
+    letter-spacing: -.055em;
+}
+
+.story-copy p {
+    max-width: 570px;
+    margin: 0;
+    color: rgba(255,255,255,.78);
+    font-size: clamp(1rem, 1.4vw, 1.2rem);
+    line-height: 1.7;
+}
+
+.story-pulse {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 2.4rem;
+}
+
+.story-pulse span {
+    width: 4px;
+    height: 10px;
+    border-radius: 8px;
+    background: var(--brand-coral);
+    animation: soundPulse 1.8s ease-in-out infinite;
+}
+
+.story-pulse span:nth-child(2), .story-pulse span:nth-child(8) { height: 21px; animation-delay: -.2s; }
+.story-pulse span:nth-child(3), .story-pulse span:nth-child(7) { height: 35px; animation-delay: -.4s; }
+.story-pulse span:nth-child(4), .story-pulse span:nth-child(6) { height: 26px; animation-delay: -.6s; }
+.story-pulse span:nth-child(5) { height: 43px; animation-delay: -.8s; }
+
+@keyframes soundPulse {
+    0%, 100% { transform: scaleY(.62); opacity: .62; }
+    50% { transform: scaleY(1); opacity: 1; }
+}
+
+.story-caption {
+    margin: 0;
+    color: rgba(255,255,255,.62);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.login-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: clamp(2rem, 6vw, 6rem);
+    background:
+        radial-gradient(circle at 92% 8%, rgba(36, 55, 233, .11), transparent 26%),
+        var(--brand-soft);
+}
+
+.mobile-brand { display: none; }
+
+.login-card {
+    width: 100%;
+    max-width: 470px;
+    animation: loginReveal .7s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes loginReveal {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-heading { margin-bottom: 2.6rem; }
+.login-heading .eyebrow { color: var(--brand-blue); }
+
+.login-heading h2 {
+    margin: .65rem 0 .55rem;
+    color: var(--brand-ink);
+    font: 700 clamp(2.2rem, 4vw, 3.25rem)/1.06 var(--font-display);
+    letter-spacing: -.045em;
+}
+
+.login-heading p {
+    margin: 0;
+    color: #69708b;
+    font-size: 1rem;
+}
+
+.login-feedback {
+    display: none;
+    margin: -1.1rem 0 1.4rem;
+    padding: .85rem 1rem;
+    color: #9d2f20;
+    background: #fff0ec;
+    border: 1px solid #ffc6b9;
+    border-radius: 12px;
+    font-size: .82rem;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.login-feedback.visible { display: block; }
+
+.login-page .form-group { margin-bottom: 1.35rem; }
+
+.login-page .form-group label {
+    color: #303650;
+    font-size: .83rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: none;
+}
+
+.label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.label-row span {
+    color: #858ba1;
+    font-size: .72rem;
+}
+
+.input-wrap { position: relative; }
+
+.input-wrap svg {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: #7a819b;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.login-page .form-input {
+    min-height: 58px;
+    padding: 1rem 1rem 1rem 3.1rem;
+    color: var(--brand-ink);
+    background: #fff;
+    border: 1.5px solid #dfe3f1;
+    border-radius: 15px;
+    box-shadow: 0 5px 16px rgba(19, 29, 77, .03);
+    backdrop-filter: none;
+}
+
+.login-page .form-input::placeholder { color: #9ba1b5; }
+
+.login-page .form-input:focus {
+    background: #fff;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 4px rgba(36, 55, 233, .1);
+    transform: none;
+}
+
+.login-submit {
+    min-height: 58px;
+    margin-top: .55rem;
+    padding-inline: 1.2rem;
+    justify-content: space-between;
+    color: #fff;
+    background: var(--brand-blue);
+    border-radius: 15px;
+    box-shadow: 0 12px 28px rgba(36, 55, 233, .24);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 1rem;
+}
+
+.login-submit svg {
+    width: 23px;
+    height: 23px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform .2s ease;
+}
+
+.login-submit:hover {
+    background: var(--brand-blue-dark);
+    box-shadow: 0 15px 32px rgba(36, 55, 233, .3);
+}
+
+.login-submit:hover svg { transform: translateX(3px); }
+.login-submit:disabled { cursor: wait; opacity: .7; transform: none; }
+
+.login-help {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-top: 1.6rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid #e1e4ef;
+}
+
+.help-icon {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1.5px solid #b8bdd0;
+    border-radius: 50%;
+    color: #70778f;
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.login-help p {
+    margin: 0;
+    color: #777e95;
+    font-size: .84rem;
+}
+
+.login-help strong { color: #3c435d; }
+
+.login-footer {
+    position: absolute;
+    bottom: 1.75rem;
+    margin: 0;
+    color: #8d93a8;
+    font-size: .72rem;
+}
+
+@media (max-width: 960px) {
+    .login-shell { grid-template-columns: minmax(0, .9fr) minmax(400px, 1.1fr); }
+    .story-copy h1 { font-size: clamp(2.7rem, 5.8vw, 4.4rem); }
+}
+
+@media (max-width: 760px) {
+    .login-page {
+        background:
+            linear-gradient(rgba(8, 13, 39, .84), rgba(8, 13, 39, .92)),
+            url('close-up-man-hand-playing-guitar.jpg') center / cover fixed;
+    }
+
+    .login-shell { display: block; }
+    .login-story { display: none; }
+
+    .login-panel {
+        min-height: 100svh;
+        justify-content: flex-start;
+        padding: 2rem 1.25rem 4.5rem;
+        background: transparent;
+    }
+
+    .mobile-brand {
+        display: inline-flex;
+        align-self: flex-start;
+        margin-bottom: 2.4rem;
+        color: #fff;
+    }
+
+    .mobile-brand .brand-mark { background: var(--brand-coral); }
+    .mobile-brand .brand-name span { color: #ff9a83; }
+
+    .login-card {
+        max-width: none;
+        padding: 1.6rem;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 24px;
+        background: rgba(248, 249, 255, .96);
+        box-shadow: 0 24px 70px rgba(2, 6, 24, .35);
+        backdrop-filter: blur(18px);
+    }
+
+    .login-heading { margin-bottom: 2rem; }
+    .login-heading h2 { font-size: 2.25rem; }
+    .label-row span { display: none; }
+    .login-footer { bottom: 1.2rem; color: rgba(255,255,255,.62); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-card,
+    .story-pulse span { animation: none; }
 }

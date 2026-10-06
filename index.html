@@ -30,7 +30,7 @@
 
   <!-- PWA MANIFEST -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#a760ff">
+  <meta name="theme-color" content="#2437e9">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -43,62 +43,86 @@
 
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%23a760ff;stop-opacity:1%22 /><stop offset=%22100%25%22 style=%22stop-color:%23ec4899;stop-opacity:1%22 /></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22 /><text y=%22.9em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2270%22 font-family=%22sans-serif%22 font-weight=%22800%22 fill=%22white%22>T+</text></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="login-page">
-  <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <div class="logo-content" style="margin-bottom: 3.5rem; text-align: center; animation: fadeInDown 0.8s ease-out;">
-      <h1 class="logo-title" style="font-size: 4.5rem; letter-spacing: -2px;">Toque<span class="logo-plus">+</span></h1>
-    </div>
+  <main class="login-shell">
+    <section class="login-story" aria-label="Apresentação Toque Mais">
+      <a class="brand brand-on-dark" href="index.html" aria-label="Toque Mais — página inicial">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" role="img">
+            <path d="M12 25.5V14.5M18 30V10M24 26.5V13.5M30 23V17" />
+          </svg>
+        </span>
+        <span class="brand-name">toque<span>+</span></span>
+      </a>
 
-    <div class="card-glass login-card">
-      <h2
-        style="text-align: center; margin-bottom: 2rem; font-family: var(--font-display); color: white; letter-spacing: -0.5px;">
-        Portal do Aluno</h2>
-
-      <form id="loginForm">
-        <div class="form-group">
-          <label>Nome ou E-mail</label>
-          <input type="text" id="identifier" class="form-input" placeholder="Seu nome ou e-mail" required
-            autocomplete="username">
-          <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.8rem;">💡 Entre com
-            seu nome ou e-mail cadastrado</small>
+      <div class="story-copy">
+        <span class="story-kicker">Sua música continua aqui</span>
+        <h1>Aprender música é encontrar o seu próprio ritmo.</h1>
+        <p>Aulas, atividades e orientações do seu professor em um só lugar — prontas para quando você estiver.</p>
+        <div class="story-pulse" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
         </div>
-        <div class="form-group">
-          <label>Senha</label>
-          <input type="password" id="password" class="form-input" placeholder="••••••••" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Entrar na Academia</button>
-      </form>
-
-      <div style="margin-top: 2.5rem; text-align: center;">
-        <p style="font-size: 0.85rem; color: var(--text-secondary); opacity: 0.8;">Novos alunos devem solicitar os
-          acessos ao professor.</p>
       </div>
-    </div>
 
-    <p
-      style="margin-top: 4rem; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-      © 2025 TOQUE+</p>
-  </div>
+      <p class="story-caption">Toque Mais · Educação musical</p>
+    </section>
 
-  <style>
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
+    <section class="login-panel">
+      <div class="mobile-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40"><path d="M12 25.5V14.5M18 30V10M24 26.5V13.5M30 23V17" /></svg>
+        </span>
+        <span class="brand-name">toque<span>+</span></span>
+      </div>
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
+      <div class="login-card">
+        <div class="login-heading">
+          <span class="eyebrow">Portal do aluno</span>
+          <h2>Bom ter você de volta.</h2>
+          <p>Entre para continuar de onde parou.</p>
+        </div>
+
+        <div class="login-feedback" id="loginFeedback" role="alert" aria-live="polite"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="identifier">Nome ou e-mail</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" /></svg>
+              <input type="text" id="identifier" class="form-input" placeholder="Como você foi cadastrado" required autocomplete="username">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="label-row">
+              <label for="password">Senha</label>
+              <span>Fornecida pelo professor</span>
+            </div>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>
+              <input type="password" id="password" class="form-input" placeholder="Digite sua senha" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary login-submit">
+            <span>Entrar na plataforma</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
+        </form>
+
+        <div class="login-help">
+          <span class="help-icon">?</span>
+          <p>Ainda não tem acesso? <strong>Fale com seu professor.</strong></p>
+        </div>
+      </div>
+
+      <p class="login-footer">© 2026 Toque Mais. Feito para quem faz música.</p>
+    </section>
+  </main>
 
   <script>
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
@@ -110,6 +134,11 @@
       const identifier = document.getElementById('identifier').value.trim();
       const password = document.getElementById('password').value;
       const btn = e.target.querySelector('button');
+      const btnLabel = btn.querySelector('span');
+      const feedback = document.getElementById('loginFeedback');
+
+      feedback.classList.remove('visible');
+      feedback.textContent = '';
 
       // 1. Admin Fixo
       if (identifier.toLowerCase() === 'gui@aula.com' && password === '123456') {
@@ -117,8 +146,9 @@
         return;
       }
 
-      btn.innerText = 'Verificando...';
+      btnLabel.textContent = 'Verificando acesso...';
       btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
 
       try {
         // 2. Buscar alunos da API/MongoDB
@@ -139,15 +169,20 @@
           localStorage.setItem('loggedStudentId', student._id || student.id);
           window.location.href = 'aluno.html';
         } else {
-          alert('Credenciais não reconhecidas pelo sistema.');
-          btn.innerText = 'Entrar na Academia';
+          feedback.textContent = 'Não encontramos esses dados. Confira seu nome, e-mail e senha.';
+          feedback.classList.add('visible');
+          btnLabel.textContent = 'Entrar na plataforma';
           btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          document.getElementById('identifier').focus();
         }
       } catch (error) {
         console.error("Erro no login:", error);
-        alert('Erro de conexão com o servidor. Verifique se o backend está rodando.');
-        btn.innerText = 'Entrar na Academia';
+        feedback.textContent = 'Não foi possível entrar agora. Tente novamente em alguns instantes.';
+        feedback.classList.add('visible');
+        btnLabel.textContent = 'Entrar na plataforma';
         btn.disabled = false;
+        btn.removeAttribute('aria-busy');
       }
     });
 
