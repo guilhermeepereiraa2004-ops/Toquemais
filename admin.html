@@ -672,6 +672,39 @@
             .admin-page .premium-table { min-width: 680px; }
             .admin-logout span { display: none; }
         }
+
+        /* Histórico de conteúdo e encaminhamento */
+        .content-history-head { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin-bottom:1.4rem; }
+        .content-history-head h2 { margin:0; color:var(--text-primary); font:700 2rem/1 var(--font-display); letter-spacing:-.04em; }
+        .content-history-head p { margin:.45rem 0 0; color:var(--text-secondary); }
+        .content-history-count { padding:.55rem .8rem; color:var(--primary-purple); background:#edf0ff; border-radius:10px; font-size:.76rem; font-weight:800; }
+        .content-history-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:1rem; }
+        .sent-content-card { overflow:hidden; padding:0 !important; background:#fff !important; border:1px solid var(--glass-border) !important; border-radius:20px !important; box-shadow:0 12px 30px rgba(24,35,91,.06) !important; }
+        .sent-content-preview { height:150px; position:relative; display:grid; place-items:center; overflow:hidden; color:var(--primary-purple); background:linear-gradient(145deg,#e9edff,#f6f7ff); }
+        .sent-content-preview img { width:100%; height:100%; object-fit:cover; }
+        .sent-content-preview svg { width:42px; height:42px; fill:none; stroke:currentColor; stroke-width:1.6; }
+        .sent-type { position:absolute; top:12px; left:12px; padding:6px 8px; color:#fff; background:rgba(16,22,51,.78); border-radius:8px; font-size:.66rem; font-weight:800; text-transform:uppercase; backdrop-filter:blur(8px); }
+        .sent-content-body { padding:1.25rem; }
+        .sent-content-meta { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.65rem; color:var(--text-muted); font-size:.7rem; font-weight:700; }
+        .sent-content-body h3 { margin:0 0 .55rem; color:var(--text-primary); font:700 1.12rem/1.25 var(--font-display); }
+        .sent-content-body>p { min-height:42px; margin:0 0 1rem; color:var(--text-secondary); font-size:.83rem; line-height:1.55; }
+        .recipient-line { min-height:42px; display:flex; align-items:flex-start; gap:.55rem; padding:.7rem .8rem; color:#59617a; background:#f6f7fb; border-radius:11px; font-size:.74rem; line-height:1.45; }
+        .recipient-line svg { width:16px; height:16px; flex:0 0 auto; fill:none; stroke:var(--primary-purple); stroke-width:2; }
+        .sent-actions { display:grid; grid-template-columns:1fr auto auto; gap:.5rem; margin-top:1rem; }
+        .sent-action { min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.55rem .7rem; color:var(--text-secondary); background:#fff; border:1px solid var(--glass-border); border-radius:10px; font:700 .74rem/1 'Inter',sans-serif; cursor:pointer; transition:.2s; }
+        .sent-action:hover { color:var(--primary-purple); border-color:#bfc6ff; background:#f5f6ff; }
+        .sent-action.primary { color:#fff; background:var(--primary-purple); border-color:var(--primary-purple); }
+        .sent-action.danger { color:#c04444; }
+        .sent-action svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; }
+        .forward-summary { display:flex; gap:1rem; align-items:center; padding:1rem; margin-bottom:1.2rem; background:#f4f6ff; border:1px solid #e0e4ff; border-radius:14px; }
+        .forward-summary-icon { width:44px; height:44px; display:grid; place-items:center; color:var(--primary-purple); background:#e4e8ff; border-radius:12px; }
+        .forward-summary strong { display:block; color:var(--text-primary); }
+        .forward-summary small { color:var(--text-secondary); }
+        .forward-student-list { max-height:260px; overflow:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; }
+        .forward-option { display:flex; align-items:center; gap:.7rem; padding:.8rem; color:var(--text-secondary); background:#f8f9fc; border:1px solid var(--glass-border); border-radius:11px; cursor:pointer; }
+        .forward-option:has(input:checked) { color:var(--text-primary); background:#eef0ff; border-color:#bbc2ff; }
+        .forward-option input { width:17px; height:17px; accent-color:var(--primary-purple); }
+        @media (max-width:640px) { .content-history-head { align-items:flex-start; flex-direction:column; } .content-history-grid { grid-template-columns:1fr; } .forward-student-list { grid-template-columns:1fr; } }
     </style>
 </head>
 
@@ -772,7 +805,11 @@
 
         <!-- Outras abas simplificadas para manter o core funcional -->
         <div id="tab-content" class="tab-content">
-            <div style="display: grid; gap: 1.5rem;" id="contentList"></div>
+            <div class="content-history-head">
+                <div><h2>Conteúdos enviados</h2><p>Veja o histórico e encaminhe um material sem precisar enviá-lo novamente.</p></div>
+                <span class="content-history-count" id="contentHistoryCount">0 conteúdos</span>
+            </div>
+            <div class="content-history-grid" id="contentList"></div>
         </div>
 
         <div id="tab-activities" class="tab-content">
@@ -993,6 +1030,27 @@
         </div>
     </div>
 
+    <div id="modalForwardContent" class="modal" role="dialog" aria-modal="true" aria-labelledby="forwardModalTitle">
+        <div class="modal-content" style="max-width:620px;">
+            <h2 id="forwardModalTitle" style="font-family:var(--font-display);margin-bottom:.5rem;">Encaminhar conteúdo</h2>
+            <p style="margin:0 0 1.4rem;color:var(--text-secondary);">O aluno receberá exatamente o mesmo título e material.</p>
+            <div class="forward-summary">
+                <span class="forward-summary-icon">↗</span>
+                <div><strong id="forwardContentTitle">Conteúdo</strong><small id="forwardContentType">Material original</small></div>
+            </div>
+            <form onsubmit="forwardContent(event)">
+                <div class="form-group">
+                    <label>Encaminhar para</label>
+                    <div class="forward-student-list" id="forwardStudentList"></div>
+                </div>
+                <div style="display:flex;gap:1rem;margin-top:2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeForwardModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex:2;">Encaminhar conteúdo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL CRIAR ATIVIDADE -->
     <div id="modalCreateActivity" class="modal">
         <div class="modal-content" style="max-width: 700px;">
@@ -1132,11 +1190,15 @@
 
     <!-- SCRIPTS MODIFICADOS PARA API -->
     <script>
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
-            ? (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api')
-            : '/api';
+        const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
+        const API_URL = window.location.protocol === 'file:'
+            ? 'http://localhost:3001/api'
+            : LOCAL_HOSTS.includes(window.location.hostname) && window.location.port !== '3001'
+                ? `${window.location.protocol}//127.0.0.1:3001/api`
+                : '/api';
 
         let students = [], reports = [], contents = [], activities = [], activity_results = [], goals = [];
+        let contentToForward = null;
 
         // Helper de Toast
         function showToast(title, msg, type = 'success', icon = '✅') {
@@ -1438,18 +1500,103 @@
 
         function renderContents() {
             const list = document.getElementById('contentList');
-            list.innerHTML = contents.length ? contents.map(c => `
-                <div class="card" style="border-left: 6px solid var(--primary-purple); display: flex; gap: 2rem; align-items: center; background: rgba(255,255,255,0.01);">
-                    <div style="width: 70px; height: 70px; background: var(--bg-input); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid var(--glass-border);">${c.type === 'video' ? '▶️' : '📄'}</div>
-                    <div style="flex: 1;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;"><strong style="font-size: 1.25rem;">${c.title}</strong><small style="color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${c.date}</small></div>
-                        <p style="margin: 0.6rem 0; font-size: 1rem; opacity: 0.8;">${c.desc}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <small style="color: var(--primary-purple-light); font-weight: 700;">👤 PARA: ${c.recipients.map(id => students.find(s => s._id === id)?.name || 'N/A').join(', ')}</small>
-                            <button class="circle-btn" style="height: 32px; width: 32px; font-size: 0.8rem;" onclick="deleteContent('${c._id}')">🗑️</button>
+            document.getElementById('contentHistoryCount').innerText = `${contents.length} ${contents.length === 1 ? 'conteúdo' : 'conteúdos'}`;
+            list.innerHTML = contents.length ? contents.map(c => {
+                const contentId = c._id || c.id;
+                const recipients = Array.isArray(c.recipients) ? c.recipients : [];
+                const recipientNames = recipients.includes('all')
+                    ? 'Todos os alunos'
+                    : recipients.map(id => students.find(s => String(s._id) === String(id) || String(s.id) === String(id))?.name).filter(Boolean).join(', ') || 'Nenhum aluno identificado';
+                const url = c.link || c.fileUrl || '';
+                const youtubeId = getYouTubeId(c.link || '');
+                const preview = youtubeId
+                    ? `<img src="https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg" alt="Miniatura de ${c.title}">`
+                    : c.fileType?.startsWith('image/') && c.fileUrl
+                        ? `<img src="${c.fileUrl}" alt="${c.title}">`
+                        : `<svg viewBox="0 0 24 24" aria-hidden="true">${c.type === 'video' ? '<path d="m8 5 11 7-11 7V5Z"/>' : '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8ZM14 2v6h6M8 13h8M8 17h6"/>'}</svg>`;
+                return `
+                    <article class="card sent-content-card">
+                        <div class="sent-content-preview">${preview}<span class="sent-type">${c.type === 'video' ? 'Vídeo' : 'Material'}</span></div>
+                        <div class="sent-content-body">
+                            <div class="sent-content-meta"><span>Enviado em ${c.date || 'data não informada'}</span><span>${recipients.length || 0} destino(s)</span></div>
+                            <h3>${c.title}</h3>
+                            <p>${c.desc || 'Conteúdo disponibilizado aos alunos.'}</p>
+                            <div class="recipient-line"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6"/></svg><span><strong>Enviado para:</strong> ${recipientNames}</span></div>
+                            <div class="sent-actions">
+                                ${url ? `<button class="sent-action" onclick="openSentContent('${contentId}')"><svg viewBox="0 0 24 24"><path d="M14 3h7v7M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>Abrir</button>` : '<span></span>'}
+                                ${recipients.includes('all') ? '' : `<button class="sent-action primary" onclick="openForwardModal('${contentId}')"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg>Encaminhar</button>`}
+                                <button class="sent-action danger" onclick="deleteContent('${contentId}')" aria-label="Excluir ${c.title}"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/></svg></button>
+                            </div>
                         </div>
-                    </div>
-                </div>`).join('') : '<div style="padding: 5rem; text-align: center; border: 2px dashed var(--glass-border); border-radius: 30px; opacity: 0.5;">Fila de materiais vazia.</div>';
+                    </article>`;
+            }).join('') : '<div style="grid-column:1/-1;padding:5rem;text-align:center;border:2px dashed var(--glass-border);border-radius:24px;color:var(--text-secondary);">Nenhum conteúdo enviado ainda.</div>';
+        }
+
+        function getYouTubeId(url) {
+            if (!url || (!url.includes('youtube') && !url.includes('youtu.be'))) return '';
+            try {
+                const parsed = new URL(url);
+                return parsed.hostname.includes('youtu.be') ? parsed.pathname.slice(1) : parsed.searchParams.get('v') || parsed.pathname.split('/').pop();
+            } catch { return ''; }
+        }
+
+        function findContent(id) {
+            return contents.find(c => String(c._id) === String(id) || String(c.id) === String(id));
+        }
+
+        function openSentContent(id) {
+            const content = findContent(id);
+            const url = content?.link || content?.fileUrl;
+            if (url) window.open(url, '_blank', 'noopener');
+        }
+
+        function openForwardModal(id) {
+            contentToForward = findContent(id);
+            if (!contentToForward) return;
+            document.getElementById('forwardContentTitle').innerText = contentToForward.title;
+            document.getElementById('forwardContentType').innerText = contentToForward.type === 'video' ? 'Vídeo original' : 'Material original';
+            const currentRecipients = (contentToForward.recipients || []).map(String);
+            const availableStudents = students.filter(s => !currentRecipients.includes(String(s._id)) && !currentRecipients.includes(String(s.id)));
+            document.getElementById('forwardStudentList').innerHTML = availableStudents.length
+                ? availableStudents.map(s => `<label class="forward-option"><input type="checkbox" value="${s._id || s.id}"><span>${s.name}</span></label>`).join('')
+                : '<p style="grid-column:1/-1;padding:1rem;color:var(--text-secondary);">Este conteúdo já foi enviado para todos os alunos cadastrados.</p>';
+            document.getElementById('modalForwardContent').style.display = 'flex';
+        }
+
+        function closeForwardModal() {
+            document.getElementById('modalForwardContent').style.display = 'none';
+            contentToForward = null;
+        }
+
+        async function forwardContent(event) {
+            event.preventDefault();
+            const selected = Array.from(document.querySelectorAll('#forwardStudentList input:checked')).map(input => input.value);
+            if (!selected.length) return showToast('Selecione um aluno', 'Escolha ao menos um novo destinatário.', 'error');
+            const button = event.target.querySelector('button[type="submit"]');
+            const originalLabel = button.innerText;
+            button.disabled = true;
+            button.innerText = 'Encaminhando...';
+            const recipients = [...new Set([...(contentToForward.recipients || []).map(String), ...selected])];
+            try {
+                const id = contentToForward._id || contentToForward.id;
+                const response = await fetch(`${API_URL}/content/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipients })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Não foi possível encaminhar.');
+                const updated = result.content || { ...contentToForward, recipients };
+                contents = contents.map(c => String(c._id || c.id) === String(id) ? updated : c);
+                closeForwardModal();
+                renderContents();
+                showToast('Conteúdo encaminhado', `O material foi enviado para ${selected.length} novo(s) aluno(s).`);
+            } catch (error) {
+                showToast('Erro', error.message, 'error');
+            } finally {
+                button.disabled = false;
+                button.innerText = originalLabel;
+            }
         }
 
         function renderReports() {

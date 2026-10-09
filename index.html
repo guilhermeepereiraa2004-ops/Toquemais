@@ -116,9 +116,12 @@
   </main>
 
   <script>
-    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
-      ? (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api')
-      : '/api';
+    const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
+    const API_URL = window.location.protocol === 'file:'
+      ? 'http://localhost:3001/api'
+      : LOCAL_HOSTS.includes(window.location.hostname) && window.location.port !== '3001'
+        ? `${window.location.protocol}//127.0.0.1:3001/api`
+        : '/api';
 
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
       e.preventDefault();

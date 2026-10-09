@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Toquemais | Área de Treinamento</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/icon-192x192.png">
@@ -897,6 +897,47 @@
             .student-section-header { align-items: flex-end; }
         }
 
+        /* Barra de módulos: ocupa toda a base em celulares e WebViews */
+        @media (max-width: 900px), (hover: none) and (pointer: coarse) {
+            .student-page .student-tabs {
+                position: fixed !important;
+                inset: auto 0 0 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding:
+                    .45rem
+                    max(.45rem, env(safe-area-inset-right))
+                    calc(.45rem + env(safe-area-inset-bottom))
+                    max(.45rem, env(safe-area-inset-left)) !important;
+                display: grid !important;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0 !important;
+                border-right: 0;
+                border-bottom: 0;
+                border-left: 0;
+                border-radius: 20px 20px 0 0 !important;
+                box-sizing: border-box;
+                transform: none !important;
+            }
+
+            .student-page .tab-btn {
+                width: 100%;
+                min-width: 0;
+                min-height: 54px;
+                padding: .35rem .1rem;
+            }
+
+            .student-page .admin-dashboard {
+                padding-bottom: calc(96px + env(safe-area-inset-bottom));
+            }
+
+            .student-page .tab-content {
+                padding-bottom: calc(96px + env(safe-area-inset-bottom));
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .student-page .video-card-premium,
             .student-page .report-card-premium,
@@ -1072,9 +1113,12 @@
         const dbName = "ToqueMaisDB";
         const dbVersion = 1;
 
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
-            ? (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api')
-            : '/api';
+        const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
+        const API_URL = window.location.protocol === 'file:'
+            ? 'http://localhost:3001/api'
+            : LOCAL_HOSTS.includes(window.location.hostname) && window.location.port !== '3001'
+                ? `${window.location.protocol}//127.0.0.1:3001/api`
+                : '/api';
 
         // Carregar Dados da API
         async function loadData() {

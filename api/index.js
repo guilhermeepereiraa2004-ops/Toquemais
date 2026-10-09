@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import mongoose from 'mongoose';
+import { readFile } from 'node:fs/promises';
 import connectDB from '../src/config/database.js';
 import { initFirebase, uploadFileToFirebase, deleteFileFromFirebase } from '../src/services/firebaseStorage.js';
 
@@ -22,7 +23,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Conexões (Executa a cada requisição fria no serverless)
-connectDB();
+connectDB().catch((error) => {
+    console.warn('MongoDB indisponível na inicialização; a API continuará ativa e tentará novamente nas requisições.', error.message);
+});
 initFirebase(); // Inicializa se as credenciais existirem
 
 
@@ -48,6 +51,14 @@ const getSafeQuery = (id) => {
     }
     return { id: id }; // Fallback para string literal se não for nenhum dos anteriores
 };
+
+const waitForDatabase = () => Promise.race([
+    connectDB(),
+    new Promise((_, reject) => setTimeout(
+        () => reject(new Error('Tempo limite ao conectar ao MongoDB.')),
+        6000
+    ))
+]);
 
 // --- ROTA DE DIAGNÓSTICO (Para debugar no Vercel) ---
 app.get('/api/health', (req, res) => {
@@ -101,21 +112,9 @@ app.post('/api/login', async (req, res) => {
 
 // --- ROTA PRINCIPAL: DADOS AGREGADOS ---
 app.get('/api/data', async (req, res) => {
-    // Fail-safe: Se não tiver conectado ao banco ainda
-    if (mongoose.connection.readyState !== 1) {
-        await connectDB(); // Tenta conectar de novo
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                error: 'Banco de dados não conectado. Verifique MONGODB_URI.',
-                students: [], // Retorna array vazio para não quebrar o frontend
-                contents: [],
-                reports: [],
-                activities: []
-            });
-        }
-    }
-
     try {
+        if (mongoose.connection.readyState !== 1) await waitForDatabase();
+
         const [students, contents, reports, activities, activity_results, goals] = await Promise.all([
             Student.find().sort({ name: 1 }),
             Content.find().sort({ createdAt: -1 }),
@@ -135,7 +134,35 @@ app.get('/api/data', async (req, res) => {
         });
     } catch (error) {
         console.error("Erro ao buscar dados:", error);
-        res.status(500).json({ error: 'Erro ao buscar dados do servidor: ' + error.message });
+
+        // No desenvolvimento local, mantém o painel utilizável mesmo quando
+        // o MongoDB remoto estiver temporariamente inacessível.
+        if (process.env.NODE_ENV !== 'production') {
+            try {
+                const localData = JSON.parse(await readFile(new URL('../data/database.json', import.meta.url), 'utf8'));
+                return res.json({
+                    students: localData.students || [],
+                    contents: localData.contents || [],
+                    reports: localData.reports || [],
+                    activities: localData.activities || [],
+                    activity_results: localData.activity_results || [],
+                    goals: localData.goals || [],
+                    source: 'local-fallback'
+                });
+            } catch (fallbackError) {
+                console.error('Erro ao carregar dados locais:', fallbackError.message);
+            }
+        }
+
+        res.status(503).json({
+            error: 'Banco de dados indisponível. Verifique a conexão e a variável MONGODB_URI.',
+            students: [],
+            contents: [],
+            reports: [],
+            activities: [],
+            activity_results: [],
+            goals: []
+        });
     }
 });
 
